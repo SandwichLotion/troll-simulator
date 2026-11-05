@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Troll Simulator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&display=swap">
+<style>
+:root{--bg:#050507;--panel:#16161c;--line:#2a2a33;--text:#f6f6f8;--dim:#a2a2b0;--pink:#fe2c55;--cyan:#25f4ee;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#050507}}
+:root[data-theme="dark"]{--bg:#050507}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;justify-content:center;overflow:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:60}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+[hidden]{display:none!important}
+.phone{position:relative;width:100%;max-width:430px;height:100%;display:flex;flex-direction:column;background:#000;overflow:hidden}
+.cover{position:absolute;inset:0;background-size:cover;background-position:center}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(#000b,#0000 28%,#0000 50%,#000d)}
+.z{position:relative;z-index:2}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 10px 4px}
+.host{display:flex;align-items:center;gap:8px;background:#0007;border-radius:30px;padding:3px 4px 3px 3px;min-width:0}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:20px;flex:none;border:2px solid var(--pink);background-size:cover;background-position:center}
+.host .t{min-width:0;font-size:12px;line-height:1.25}.host .t b{display:block;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fol{background:var(--pink);border-radius:20px;padding:7px 12px;font-weight:700;font-size:12px}.fol.on{background:#ffffff30}
+.rt{display:flex;align-items:center;gap:6px}
+.chip{background:#0007;border-radius:20px;padding:6px 10px;font-weight:700;font-size:12px;white-space:nowrap}
+.x{width:30px;height:30px;border-radius:50%;background:#0007;font-size:14px}
+.row2{display:flex;align-items:center;gap:6px;padding:2px 10px 6px;flex-wrap:wrap}
+.live{background:linear-gradient(90deg,var(--pink),#ff6a3d);border-radius:6px;padding:3px 8px;font-weight:800;font-size:12px;display:flex;gap:5px;align-items:center}
+.live i{display:inline-block;width:3px;height:10px;background:#fff;border-radius:2px;animation:eq 1s infinite alternate}.live i:nth-child(2){animation-delay:.3s}.live i:nth-child(3){animation-delay:.6s}
+@keyframes eq{to{height:4px}}
+#combo.hot{background:var(--pink)}
+.bar{height:3px;margin:0 10px;background:#fff3;border-radius:2px;overflow:hidden}.bar i{display:block;height:100%;background:var(--cyan);transform-origin:left;width:100%}
+.battle{margin:6px 10px 0;display:flex;height:22px;border-radius:12px;overflow:hidden;font-size:11px;font-weight:800;background:#0008}
+.battle b{display:flex;align-items:center;padding:0 8px;transition:width .3s}.battle .a{background:var(--cyan);color:#000;width:50%}.battle .b{background:var(--pink);flex:1;justify-content:flex-end}
+.notice{margin:8px 10px 0;max-width:76%;font-size:12px;line-height:1.35;color:#ffe08a;background:#0006;border-radius:10px;padding:6px 9px}
+.banner{position:absolute;left:-260px;top:120px;z-index:4;background:linear-gradient(90deg,#fe2c55cc,#fe2c5500);border-radius:30px;padding:6px 26px 6px 8px;font-size:12px;font-weight:700;transition:left .35s}.banner.show{left:8px}
+.feed{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;padding:0 70px 6px 10px;overflow:hidden}
+.cl{align-self:flex-start;background:#0008;border-radius:12px;padding:4px 9px;font-size:12.5px;line-height:1.3;max-width:100%;animation:up .18s}
+.cl b{color:var(--cyan);font-weight:700;margin-right:5px}.cl.sys{color:#ffe08a}.cl.bad{background:#fe2c55b0}.cl.me{background:#25f4ee33}
+@keyframes up{from{transform:translateY(10px);opacity:0}}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes fly{to{transform:translateY(-90px) scale(1.3);opacity:0}}
+.hp{display:flex;align-items:center;gap:6px;padding:2px 10px 4px;font-size:13px}.hp .bar{flex:1;margin:0;height:7px}.hp .bar i{transition:width .3s,background .3s}
+.boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:4px 10px;flex:none}
+.box{position:relative;aspect-ratio:1/.82;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #ffffff30;touch-action:manipulation}
+.box .em{font-size:30px}
+.box .nm{position:absolute;left:5px;top:4px;right:24px;font-size:10px;text-shadow:0 1px 3px #000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:underline dotted}
+.box .via{position:absolute;left:5px;bottom:6px;right:34px;font-size:9px;font-style:normal;color:#ffe08a;text-shadow:0 1px 3px #000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.box .shr{position:absolute;right:4px;top:3px;font-style:normal;font-size:13px}
+.box .say{position:absolute;left:4px;right:4px;bottom:22px;font-size:10px;background:#000b;border-radius:8px;padding:2px 5px;text-align:center;line-height:1.2;max-height:2.5em;overflow:hidden}.box .say:empty{display:none}
+.box .mic{position:absolute;right:3px;bottom:3px;width:28px;height:28px;border-radius:50%;background:#000a;font-size:14px}
+.box.empty{background:#ffffff10;border:2px dashed #ffffff33;color:var(--dim);font-size:11px;flex-direction:column;cursor:default}.box.empty span{font-size:22px}
+.box.yell{border-color:var(--pink);animation:shake .3s infinite}.box.yell .say{background:var(--pink);font-weight:800}.box.muted{filter:saturate(.4)}
+.heart{position:fixed;z-index:40;pointer-events:none;font-size:26px;animation:fly 1.2s forwards}
+.fx{position:fixed;z-index:40;pointer-events:none;font-weight:800;font-size:24px;text-shadow:0 2px 6px #000;animation:fly .9s forwards}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:left;font-size:11px;color:var(--dim);margin:8px 0}.dos div{background:#ffffff10;border-radius:10px;padding:6px 9px}.dos b{display:block;font-size:14px;color:var(--text)}
+#uActs{grid-template-columns:repeat(4,1fr)}
+.bottom{display:flex;align-items:center;gap:8px;padding:6px 10px 10px}
+.bottom input{flex:1;min-width:0;border:0;border-radius:22px;background:#ffffff24;color:var(--text);padding:11px 14px;font:inherit;font-size:14px}
+.bottom input::placeholder{color:#ddd}
+.ib{width:42px;height:42px;border-radius:50%;background:#ffffff24;font-size:19px;flex:none;display:grid;place-items:center}
+.ib.heartb{background:var(--pink)}
+.sheet,.over{position:absolute;z-index:20;inset:0;background:#000c;display:flex;justify-content:center}
+.sheet{align-items:flex-end}.over{align-items:center;padding:18px}
+.card{width:100%;max-height:92%;overflow:auto;background:#121218;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+.over .card{border-radius:22px;text-align:center}
+.card h2{margin:0 0 4px;font-size:22px}.card p{margin:0 0 12px;color:var(--dim);font-size:14px;line-height:1.45}
+.big{font-size:60px;font-weight:800;line-height:1;background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{display:block;width:100%;padding:14px;margin-top:10px;border-radius:12px;font-weight:700;background:#ffffff1a}
+.btn.pri{background:var(--pink)}.btn.g{background:#fff;color:#111}.btn.t{background:#000;border:1px solid #fff5}
+label{display:block;font-size:12px;color:var(--dim);margin:12px 0 5px;text-align:left}
+input[type=text]{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0a0a0e;color:var(--text);font:inherit}
+.sw{display:flex;gap:8px;flex-wrap:wrap}.sw button{width:44px;height:44px;border-radius:12px;border:2px solid transparent;font-size:22px}.sw button.on{border-color:#fff}
+.how{text-align:left;font-size:13px;line-height:1.7;margin:10px 0}.how div{display:flex;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;font-size:11px;color:var(--dim)}.stats div{background:#ffffff10;border-radius:12px;padding:8px 2px}.stats b{display:block;color:var(--text);font-size:20px}
+.ucard{text-align:center}.ucard .av{width:84px;height:84px;font-size:46px;margin:0 auto 8px;border-color:var(--cyan)}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.acts button{background:#ffffff14;border-radius:14px;padding:12px 2px;font-size:12px;font-weight:700}.acts span{display:block;font-size:24px}
+#cd{position:absolute;z-index:30;inset:0;display:grid;place-items:center;background:#000a;font-size:140px;font-weight:800}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:70;background:#fff;color:#111;padding:10px 16px;border-radius:20px;font-weight:700;font-size:13px;max-width:90%;text-align:center}
+.card h3{margin:18px 0 2px;font-size:15px}.card code{background:#ffffff18;border-radius:6px;padding:1px 5px;font-size:12px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.seg button{padding:12px 4px;border-radius:12px;background:#ffffff14;font-weight:700;border:2px solid transparent}.seg button.on{border-color:var(--cyan)}
+.chk{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text);margin:12px 0 0}.chk input{width:20px;height:20px;accent-color:var(--pink);flex:none}
+input[type=range]{width:100%;accent-color:var(--pink)}
+#sbStat{font-size:12px;margin:10px 0 0}
+@media (prefers-reduced-motion:reduce){.msg,.msg.hit,.msg.bad,.heart,.fx,.live i,.banner{animation:none;transition:none}}
+</style>
+</head>
+<body>
+<main class="phone" id="phone">
+  <div class="cover" id="cover"></div>
+  <header class="top z">
+    <div class="host"><div class="av" id="hostAv"></div><div class="t"><b id="hostName"></b>💎 <span id="score">0</span></div><button class="fol" id="folBtn">Follow</button></div>
+    <div class="rt"><span class="chip">👁 <span id="viewers">0</span></span><button class="x" id="endBtn" aria-label="End LIVE">✕</button></div>
+  </header>
+  <div class="row2 z">
+    <span class="live"><i></i><i></i><i></i>LIVE</span>
+    <span class="chip" id="lvl">Level 1</span>
+    <span class="chip" id="wait">⏳ 0 waiting</span>
+    <button class="chip" id="helpBtn" aria-label="How to play">❓</button>
+    <button class="chip" id="cfgBtn" aria-label="Settings">⚙️</button>
+  </div>
+  <div class="hp z"><span>🛡️</span><div class="bar"><i id="hp"></i></div></div>
+  <div class="banner" id="banner"></div>
+  <section class="boxes z" id="boxes" aria-label="Guest boxes"></section>
+  <section class="feed z" id="feed" aria-label="Live chat"></section>
+  <div class="bottom z">
+    <input id="chatIn" type="text" placeholder="Add comment..." maxlength="80" aria-label="Add comment">
+    <button class="ib" id="profBtn" aria-label="Edit profile">✏️</button>
+    <button class="ib" id="acctBtn" aria-label="Account">👤</button>
+    <button class="ib" id="shareBtn" aria-label="Share">↗️</button>
+    <button class="ib heartb" id="likeBtn" aria-label="Send likes">❤️</button>
+  </div>
+
+  <div class="over" id="start"><div class="card">
+    <div class="big" style="font-size:38px">The Troll Simulator</div>
+    <p style="margin-top:10px">You’re about to go LIVE. Welcome your guests, spot the trolls and keep your LIVE clean.</p>
+    <label for="titleIn">LIVE title</label><input type="text" id="titleIn" maxlength="40" value="Cleaning up my comments">
+    <div class="how" id="how"></div>
+    <button class="btn" id="cfgBtn2">⚙️ Settings</button>
+    <button class="btn pri" id="playBtn">Go LIVE</button>
+  </div></div>
+  <div id="cd" hidden></div>
+  <div class="over" id="end" hidden><div class="card">
+    <p id="endMsg" style="margin:0">LIVE ended</p>
+    <div class="big" id="endScore">0</div><p style="margin:4px 0 0">diamonds earned</p>
+    <div class="stats" id="stats"></div>
+    <button class="btn pri" id="shareScore">Share to TikTok</button>
+    <button class="btn" id="saveCard">Save score card</button>
+    <button class="btn" id="again">Go LIVE again</button>
+  </div></div>
+
+  <div class="sheet" id="userSheet" hidden><div class="card ucard">
+    <div class="av" id="uAv"></div><h2 id="uName"></h2><p id="uSub"></p><div class="dos" id="uDos"></div>
+    <div class="acts" id="uActs"></div>
+    <button class="btn" id="uClose">Close</button>
+  </div></div>
+  <div class="sheet" id="profSheet" hidden><div class="card">
+    <h2>Edit profile</h2><p>Your host photo and name update on the LIVE right away.</p>
+    <label for="nameIn">Name</label><input type="text" id="nameIn" maxlength="24">
+    <label for="handleIn">Username</label><input type="text" id="handleIn" maxlength="20">
+    <label>Profile photo</label><div class="sw" id="emojiSw"></div>
+    <label>Photo background</label><div class="sw" id="bgSw"></div>
+    <label for="photoIn">Or upload your own photo</label><input type="file" id="photoIn" accept="image/*">
+    <button class="btn pri" id="profDone">Save</button>
+  </div></div>
+  <div class="sheet" id="acctSheet" hidden><div class="card">
+    <h2>Log in to save your score</h2><p id="acctMsg">Create an account to keep your high score across devices.</p>
+    <button class="btn g" id="gBtn">Continue with Google</button>
+    <button class="btn t" id="ttBtn">Continue with TikTok</button>
+    <button class="btn" id="acctClose">Keep playing as guest</button>
+  </div></div>
+  <div class="sheet" id="cfgSheet" hidden><div class="card">
+    <h2>Settings</h2><p>Saved on this device.</p>
+    <label>Difficulty</label><div class="seg" id="diffSeg"></div>
+    <label class="chk"><input type="checkbox" id="cfgUnmute"> Muted guests can turn their mic back on</label>
+    <h3>Sound</h3>
+    <label class="chk"><input type="checkbox" id="cfgSound"> Play guest soundbytes when they talk</label>
+    <label class="chk"><input type="checkbox" id="cfgSfx"> Game sound effects</label>
+    <label for="cfgVol">Soundbyte volume</label><input type="range" id="cfgVol" min="0" max="1" step="0.05">
+    <h3>Soundbytes</h3>
+    <p>Upload a CSV with the columns <code>difficulty,Text They Say,mp3file</code>. Difficulty is <code>easy</code>, <code>medium</code>, <code>hard</code> or <code>all</code>. The mp3 plays when a guest says that exact text. Repeat a line with different mp3 files for variety. An optional 4th column <code>type</code> (nice, eager, curse, chat) adds new lines to the game.</p>
+    <label for="cfgBase">MP3 folder or URL (used when the file isn’t uploaded)</label><input type="text" id="cfgBase">
+    <button class="btn" id="csvUp">Upload soundbytes.csv</button><input type="file" id="csvIn" accept=".csv,text/csv" hidden>
+    <button class="btn" id="mp3Up">Upload mp3 files</button><input type="file" id="mp3In" accept="audio/*,.mp3" multiple hidden>
+    <button class="btn" id="csvTpl">Download CSV template</button>
+    <button class="btn" id="csvClr">Clear soundbytes</button>
+    <p id="sbStat"></p>
+    <button class="btn pri" id="cfgDone">Done</button>
+  </div></div>
+</main>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* Real logins need your own host and backend. Fill these in there. */
+const AUTH={googleClientId:"",tiktokClientKey:"",
+  async google(){if(!this.googleClientId)return toast("Add your Google client ID in AUTH.googleClientId");
+    /* load accounts.google.com/gsi/client, initialize with client_id, POST the credential to your server */},
+  async tiktok(){if(!this.tiktokClientKey)return toast("Add your TikTok client key in AUTH.tiktokClientKey");
+    /* redirect to tiktok.com/v2/auth/authorize/?client_key=...&scope=user.info.basic&response_type=code&redirect_uri=...; your server exchanges the code */}};
+
+const A=["xX","real","not","itz","big","lil","mr","its"],B=["hater","gamer","dave","pixel","karen","vibes","ghost","toad","fr","noodle"];
+const NICE=["hi everyone! 👋","love this live","great vibes ✨","hello from Texas","can you say hi?","this is fun","first time here!","nice setup"];
+const EAGER=["OMG best live EVER!!!","literally obsessed w/ u","u deserve 1M followers!!","greatest creator on here!!","follow4follow?? pls!!"];
+const CURSE=["#@$%&!","&*%$# you!!","@#$! off","$#!@ loser","%&*@!! 🤬","#$@% this live"];
+const AMB=["lol","❤️❤️","what’s the topic?","sound is good","hi from Brazil","gm","how long u been live?","hey hey"];
+const EMO=["🙂","😄","🧑‍🎤","🐱","🎧","🌻","🦁","🧢","👩‍🚀","🍕"];
+const BOXN=[3,6,6,9],LEN=50;
+const rnd=(a,b)=>a+Math.random()*(b-a),ri=(a,b)=>Math.floor(rnd(a,b+1));
+let uid=0;
+const BASE={nice:NICE,eager:EAGER,curse:CURSE,chat:AMB};
+let EXTRA={nice:[],eager:[],curse:[],chat:[]};
+const DIFF={easy:{join:1.35,sleep:1.4,drain:.7,bad:.75},medium:{join:1,sleep:1,drain:1,bad:1},hard:{join:.75,sleep:.7,drain:1.3,bad:1.25}};
+let CFG=Object.assign({diff:"medium",sound:true,vol:.8,sfx:true,unmute:true,base:"sounds/",csv:""},store.get("ts_cfg",{}));
+const D=()=>DIFF[CFG.diff]||DIFF.medium;
+const SB={map:{},files:{},live:new Set(),n:0,a:0};
+const EMOJI=["😎","🦊","🐸","👾","🌸","🔥","🐼","👑"];
+const BGS=["linear-gradient(135deg,#fe2c55,#25f4ee)","linear-gradient(135deg,#7b2ff7,#f107a3)","linear-gradient(135deg,#f7971e,#ffd200)","linear-gradient(135deg,#11998e,#38ef7d)","linear-gradient(135deg,#232526,#414345)","linear-gradient(135deg,#2193b0,#6dd5ed)"];
+const LAYOUTS={chat:["☰ Chat",6],grid:["▦ Multi-guest",9],battle:["⚔ Battle",8]};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const fmt=n=>n>=1000?(n/1000).toFixed(1)+"K":String(Math.round(n));
+
+let P=store.get("ts_profile",{name:"Troll Whisperer",handle:"troll.whisperer",emoji:"😎",bg:0,photo:null});
+let best=store.get("ts_best",0),layout=store.get("ts_layout","chat"),tool="block",g=null,openU=null;
+
+let ac=null;
+function beep(f,d=.08,type="sine"){if(!CFG.sfx)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),v=ac.createGain();o.type=type;o.frequency.value=f;v.gain.value=.05;o.connect(v);v.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+function paint(){
+  const bg=P.photo?`url(${P.photo}) center/cover`:BGS[P.bg];
+  $("#cover").style.background=bg;$("#hostAv").style.background=bg;
+  $("#hostAv").textContent=P.photo?"":P.emoji;$("#hostName").textContent=P.name;
+}
+/* ---------- LIVE flow: you are the creator ---------- */
+function goLive(){
+  $("#start").hidden=true;$("#end").hidden=true;
+  const cd=$("#cd");cd.hidden=false;let n=3;cd.textContent=n;beep(600,.1);
+  const iv=setInterval(()=>{n--;if(n<=0){clearInterval(iv);cd.hidden=true;begin()}else{cd.textContent=n;beep(600,.1)}},800);
+}
+function begin(){
+  g={score:0,t:0,level:1,shown:0,open:3,hp:100,view:60,peak:60,run:true,paused:false,boxes:Array(9).fill(null),queue:[],groups:[],invites:[],nJoin:3,nChat:2,dirty:false,c:{early:0,raids:0,wrong:0,stopped:0}};
+  $("#feed").textContent="";
+  cl("","Welcome to your LIVE! Guests will take the boxes. Tap a box to check who they are, or tap 🎙️ to mute.","sys");
+  step();g.tick=setInterval(step,500);
+}
+function cl(name,text,cls){const f=$("#feed"),d=document.createElement("div");d.className="cl "+(cls||"");
+  if(name){const b=document.createElement("b");b.textContent=name;d.appendChild(b)}
+  d.appendChild(document.createTextNode(text));f.appendChild(d);while(f.children.length>7)f.firstChild.remove()}
+const sys=t=>cl("",t,"sys");
+function mkUser(bad,grp){
+  const u={id:++uid,bad,grp:grp||null,name:"@"+pick(A)+"_"+pick(B)+ri(1,99),emoji:pick(EMO),bg:ri(0,5),box:null,mic:true,muted:false,neutral:false,yelling:false,sharer:false,via:null,say:"",sayAt:0,sayClr:0,nextGift:g.t+rnd(6,12),nextCurse:0,gone:false,pendingInv:null};
+  if(bad){u.age=Math.random()<.8?ri(0,6):ri(30,200);u.fol=Math.random()<.7?ri(0,80):ri(200,2000);u.rep=Math.random()<.6?ri(1,4):0;u.sleepUntil=g.t+(Math.max(10,34-(g.level-1)*6)+rnd(0,8))*D().sleep}
+  else{u.age=Math.random()<.75?ri(20,1200):ri(0,6);u.fol=ri(40,20000);u.rep=Math.random()<.1?1:0;u.leaveAt=0}
+  return u;
+}
+function mkGroup(n){const grp={dead:false,fired:false,go:0,members:[]};for(let i=0;i<n;i++)grp.members.push(mkUser(true,grp));g.groups.push(grp);return grp}
+function join(u){
+  if(!u.bad)u.leaveAt=g.t+rnd(25,55);
+  sys(u.name+" joined"+(u.via?" via "+u.via+"’s link":""));seat(u);
+}
+function seat(u){
+  const i=g.boxes.slice(0,g.open).findIndex(b=>!b);
+  if(i<0){g.queue.push(u);return}
+  g.boxes[i]=u;u.box=i;u.sayAt=g.t+rnd(2,6);
+  if(u.pendingInv){scheduleInvites(u,u.pendingInv);u.pendingInv=null}
+  g.dirty=true;
+}
+function fillQ(){while(g.queue.length&&g.boxes.slice(0,g.open).some(b=>!b))seat(g.queue.shift())}
+function eject(u){u.gone=true;stopVoice(u);if(u.box!=null){g.boxes[u.box]=null;u.box=null}if(u.grp&&!u.grp.fired)u.grp.dead=true;fillQ();g.dirty=true}
+function scheduleInvites(s,members){
+  s.sharer=true;sys("🔗 "+s.name+" shared this LIVE with friends");
+  members.forEach((m,i)=>{m.via=s.name;g.invites.push({at:g.t+6+i*3,u:m,s})});g.dirty=true;
+}
+function cancelInvites(s){
+  const mine=g.invites.filter(i=>i.s===s);g.invites=g.invites.filter(i=>i.s!==s);let bad=false;
+  mine.forEach(i=>{if(i.u.bad){bad=true;if(i.u.grp)i.u.grp.dead=true}});return bad;
+}
+function startRaid(){
+  const L=g.level,size=L>=3?3:2,r=Math.random();
+  const good=g.boxes.slice(0,g.open).filter(u=>u&&!u.bad&&!u.sharer);
+  if(r<.25&&good.length){const fr=[mkUser(false)];if(L>=3)fr.push(mkUser(false));return scheduleInvites(pick(good),fr)}   /* good friends */
+  if(L>=3&&r<.55&&good.length){return scheduleInvites(pick(good),mkGroup(2).members)}                                  /* trojan: bad guests use a good user's link */
+  const grp=mkGroup(size),s=grp.members[0];s.pendingInv=grp.members.slice(1);join(s);                                  /* bad sharer brings the raid */
+}
+function newJoin(){
+  const L=g.level,live=g.groups.filter(x=>!x.dead&&!x.fired).length;
+  if(L>=2&&live<(L>=4?2:1)&&Math.random()<.3)return startRaid();
+  join(mkUser(Math.random()<[.2,.25,.3,.35][Math.min(L-1,3)]*D().bad));
+}
+function startYell(u){if(u.neutral||u.gone||u.yelling)return;u.yelling=true;u.nextCurse=g.t+2.5;u.say=pick(lines("curse"));cl(u.name,u.say,"bad");voice(u,u.say);g.dirty=true}
+function ambient(){
+  const r=Math.random(),seated=g.boxes.slice(0,g.open).filter(u=>u&&!u.yelling&&!u.muted),nm="@"+pick(A)+"_"+pick(B)+ri(1,99);
+  if(r<.2)cl("",nm+" joined","sys");
+  else if(r<.65||!seated.length)cl(nm,pick(lines("chat")));
+  else{const u=pick(seated),tx=u.bad&&!u.neutral?pick(lines("eager")):pick(lines("nice"));cl(u.name,tx);voice(u,tx)}
+}
+function gift(u){const b=$("#banner");b.textContent=u.emoji+" "+u.name+" sent a Rose 🌹";b.classList.add("show");setTimeout(()=>b.classList.remove("show"),2000)}
+
+function step(){
+  if(!g||!g.run||g.paused)return;
+  g.t+=.5;const L=g.level=1+Math.floor(g.t/LEN);
+  if(L!==g.shown){g.shown=L;$("#lvl").textContent="Level "+L;g.open=BOXN[Math.min(L-1,3)];
+    if(L>1)sys("⭐ Level "+L+(L===2?": raids begin. Watch who shares the link 🔗":L===3?": bigger raids and trojan links":": full chaos"));fillQ();g.dirty=true}
+  if(g.t>=g.nJoin){newJoin();g.nJoin=g.t+Math.max(2.5,9-(L-1)*2.2)*rnd(.7,1.3)*D().join}
+  if(g.t>=g.nChat){ambient();g.nChat=g.t+Math.max(1.2,5-(L-1))*rnd(.7,1.3)}
+  const due=g.invites.filter(i=>g.t>=i.at);g.invites=g.invites.filter(i=>g.t<i.at);due.forEach(i=>join(i.u));
+  let yellers=0,goods=0;
+  for(const u of g.boxes.slice(0,g.open)){
+    if(!u)continue;
+    if(u.muted&&CFG.unmute&&g.t>=u.unmuteAt){u.muted=false;u.mic=true;u.neutral=false;u.sayAt=g.t+rnd(2,5);sys(u.name+" turned their mic back on 🎙️");g.dirty=true;if(u.bad&&(!u.grp||u.grp.fired||u.grp.dead))startYell(u)}
+    if(!u.bad){goods++;
+      if(g.t>=u.leaveAt){sys(u.name+" left");eject(u);continue}
+      if(g.t>=u.nextGift){u.nextGift=g.t+rnd(7,12);g.score+=2;gift(u)}
+    }else if(!u.neutral&&!u.yelling&&!u.grp&&g.t>=u.sleepUntil)startYell(u);
+    if(u.yelling){yellers++;if(g.t>=u.nextCurse){u.nextCurse=g.t+2.5;u.say=pick(lines("curse"));cl(u.name,u.say,"bad");voice(u,u.say);g.dirty=true}}
+    else if(!u.muted){
+      if(!u.say&&g.t>=u.sayAt){u.say=u.bad?pick(lines("eager")):pick(lines("nice"));voice(u,u.say);u.sayAt=g.t+rnd(9,16);u.sayClr=g.t+3.5;g.dirty=true}
+      else if(u.say&&g.t>=u.sayClr){u.say="";g.dirty=true}
+    }
+  }
+  for(const grp of g.groups){
+    if(grp.dead||grp.fired)continue;
+    if(!grp.go&&grp.members.every(m=>m.box!=null))grp.go=g.t+3;       /* they wait until everyone is in a box */
+    if(grp.go&&g.t>=grp.go){grp.fired=true;grp.members.forEach(m=>startYell(m))}
+  }
+  g.hp=yellers?g.hp-yellers*1.5*D().drain:Math.min(100,g.hp+.25);
+  g.view=Math.max(10,g.view+(60+g.score*1.2+goods*35-yellers*60-g.view)*.15);g.peak=Math.max(g.peak,g.view);
+  if(g.hp<=0)return endLive("TikTok ended your LIVE for guideline violations");
+  if(g.dirty){render();g.dirty=false}hud();
+}
+function render(){
+  const el=$("#boxes");el.textContent="";
+  for(let i=0;i<g.open;i++){
+    const u=g.boxes[i],d=document.createElement("div");
+    if(!u){d.className="box empty";d.innerHTML="<span>+</span>open seat";el.appendChild(d);continue}
+    d.className="box"+(u.yelling?" yell":"")+(u.muted?" muted":"");d.dataset.u=u.id;d.style.background=BGS[u.bg];
+    d.innerHTML='<span class="em">'+u.emoji+'</span>'+(u.sharer?'<i class="shr">🔗</i>':'')+'<b class="nm">'+u.name+'</b>'+(u.via?'<em class="via">via '+u.via+'</em>':'')+'<div class="say">'+(u.yelling?"🤬 ":"")+u.say+'</div><button class="mic" aria-label="Mute microphone">'+(u.mic?"🎙️":"🔇")+'</button>';
+    d.onpointerdown=e=>{e.preventDefault();openUser(u)};
+    d.querySelector(".mic").onpointerdown=e=>{e.stopPropagation();e.preventDefault();act(u,"mute")};
+    el.appendChild(d);
+  }
+}
+function hud(){
+  const h=g?Math.max(0,g.hp):100,b=$("#hp");
+  $("#score").textContent=g?g.score:0;$("#viewers").textContent=g?fmt(g.view):"0";
+  b.style.width=h+"%";b.style.background=h>60?"var(--cyan)":h>30?"#ffd200":"var(--pink)";
+  $("#wait").textContent="⏳ "+(g?g.queue.length:0)+" waiting";
+}
+function fx(x,y,t){const d=document.createElement("div");d.className="fx";d.textContent=t;d.style.left=(x-20)+"px";d.style.top=(y-20)+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),900)}
+function fxAt(u,t){const e=document.querySelector('[data-u="'+u.id+'"]'),r=e?e.getBoundingClientRect():{left:innerWidth/2,top:220,width:0,height:0};fx(r.left+r.width/2,r.top+r.height/2,t)}
+function heart(x,y){const d=document.createElement("div");d.className="heart";d.textContent=pick(["❤️","💖","💗","🩷"]);d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),1200)}
+
+/* ---------- Moderation ---------- */
+function act(u,k){
+  if(!g||!g.run||u.gone)return;
+  let pts=0;const was=u.yelling;
+  if(k==="mute"){
+    if(u.muted)return;u.muted=true;u.mic=false;u.neutral=true;u.yelling=false;u.say="";u.mutes=(u.mutes||0)+1;stopVoice(u);u.unmuteAt=g.t+Math.max(4,rnd(8,16)-(g.level-1)*2);
+    if(u.bad){pts=u.mutes>1?4:10;if(was)g.c.stopped++;else if(u.mutes===1)g.c.early++}else{pts=-3;g.hp-=2;g.c.wrong++}
+  }else if(k==="thank"){
+    if(!u.bad){pts=4;u.leaveAt+=15;const e=document.querySelector('[data-u="'+u.id+'"]');if(e){const r=e.getBoundingClientRect();heart(r.left+20,r.top+20)}}else pts=-3;
+  }else{
+    const blocked=k==="block";eject(u);const pre=blocked?cancelInvites(u):false;
+    if(u.bad){pts=(blocked?20:15)+(was?0:10);was?g.c.stopped++:g.c.early++}
+    else{pts=blocked?-30:-15;g.hp-=8;g.c.wrong++}
+    if(pre){pts+=30;g.c.raids++;sys("🛡️ Raid prevented! Their invites were cancelled.")}
+  }
+  g.score=Math.max(0,g.score+pts);fxAt(u,(pts>=0?"+":"")+pts);beep(pts>=0?600:150,.1,pts>=0?"triangle":"square");render();hud();
+}
+function openUser(u){
+  if(!g||!g.run||u.gone)return;g.paused=true;
+  $("#uAv").textContent=u.emoji;$("#uAv").style.background=BGS[u.bg];$("#uName").textContent=u.name;
+  $("#uSub").textContent=u.yelling?"🤬 Yelling right now":u.muted?"🔇 Mic muted":"🎙️ Mic on";
+  $("#uDos").innerHTML='<div><b>'+u.age+' days</b>Account age</div><div><b>'+fmt(u.fol)+'</b>Followers</div><div><b>'+u.rep+'</b>Reports</div><div><b>'+(u.via?u.via:"For You feed")+'</b>Joined via</div><div style="grid-column:1/-1"><b>'+(u.sharer?"Yes 🔗":"No")+'</b>Shared the LIVE link</div>';
+  const a=$("#uActs");a.textContent="";
+  [["mute","🎙️","Mute mic"],["remove","✂️","Remove"],["block","🚫","Block"],["thank","🎁","Thank"]].forEach(([k,i,n])=>{
+    const b=document.createElement("button");b.innerHTML="<span>"+i+"</span>"+n;b.onclick=()=>{closeUser();act(u,k)};a.appendChild(b)});
+  $("#userSheet").hidden=false;
+}
+function closeUser(){$("#userSheet").hidden=true;if(g)g.paused=false}
+function endLive(reason){
+  g.run=false;clearInterval(g.tick);stopAll();$("#userSheet").hidden=true;
+  const isBest=g.score>best;if(isBest){best=g.score;store.set("ts_best",best)}
+  $("#endMsg").textContent=reason+(isBest?" · New high score!":"");$("#endScore").textContent=g.score;
+  const s=[["Level reached",g.level],["Peak viewers",fmt(g.peak)],["Caught early",g.c.early],["Raids prevented",g.c.raids],["Stopped mid-yell",g.c.stopped],["Good guests wronged",g.c.wrong]];
+  $("#stats").innerHTML=s.map(([k,v])=>"<div><b>"+v+"</b>"+k+"</div>").join("")+'<div style="grid-column:1/-1"><b>'+best+'</b>High score</div>';
+  $("#end").hidden=false;hud();beep(isBest?880:300,.3,"triangle");
+}
+
+/* ---------- Share ---------- */
+const shareText=()=>`I earned ${g?g.score:best} 💎 on The Troll Simulator LIVE 🧌 Can you beat my high score of ${best}? #TrollSimulator`;
+async function shareScore(){
+  const text=shareText(),url=location.href;
+  try{if(navigator.share){await navigator.share({title:"The Troll Simulator",text,url});return}}catch(e){if(e&&e.name==="AbortError")return}
+  try{await navigator.clipboard.writeText(text+" "+url);toast("Copied. Paste it into TikTok.")}catch(e){toast("Save the score card and post it on TikTok.")}
+}
+function cardBlob(){return new Promise(res=>{
+  const c=document.createElement("canvas");c.width=1080;c.height=1920;const x=c.getContext("2d"),gr=x.createLinearGradient(0,0,1080,1920);
+  gr.addColorStop(0,"#fe2c55");gr.addColorStop(1,"#25f4ee");x.fillStyle="#050507";x.fillRect(0,0,1080,1920);x.globalAlpha=.35;x.fillStyle=gr;x.fillRect(0,0,1080,1920);x.globalAlpha=1;
+  x.textAlign="center";x.fillStyle="#fff";x.font="800 84px sans-serif";x.fillText("The Troll Simulator",540,420);
+  x.font="800 340px sans-serif";x.fillText(String(g?g.score:best),540,1000);x.font="600 56px sans-serif";x.fillText("@"+P.handle,540,1160);x.fillText("High score "+best,540,1250);
+  x.font="500 46px sans-serif";x.fillText("Can you beat me?",540,1500);c.toBlob(res,"image/png")})}
+async function saveCard(){const b=await cardBlob();await saveBlob(b,"troll-simulator-score.png")}
+async function openAcct(){
+  $("#acctSheet").hidden=false;
+  try{const u=await claude.use("user");if(u){const me=await u.me();if(me&&me.name)$("#acctMsg").textContent="Viewing as "+me.name+" via Claude. Your high score is saved on this device."}}catch(e){}
+}
+
+/* ---------- Profile editor ---------- */
+function swatches(){
+  const e=$("#emojiSw");e.textContent="";EMOJI.forEach(m=>{const b=document.createElement("button");b.textContent=m;b.className=!P.photo&&P.emoji===m?"on":"";b.onclick=()=>{P.emoji=m;P.photo=null;swatches();paint()};e.appendChild(b)});
+  const s=$("#bgSw");s.textContent="";BGS.forEach((bg,i)=>{const b=document.createElement("button");b.style.background=bg;b.setAttribute("aria-label","Background "+(i+1));b.className=!P.photo&&P.bg===i?"on":"";b.onclick=()=>{P.bg=i;P.photo=null;swatches();paint()};s.appendChild(b)});
+}
+$("#photoIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image(),r=new FileReader();
+  r.onload=()=>{img.onload=()=>{const c=document.createElement("canvas");c.width=c.height=360;const x=c.getContext("2d"),s=Math.min(img.width,img.height);x.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,360,360);P.photo=c.toDataURL("image/jpeg",.8);swatches();paint()};img.src=r.result};r.readAsDataURL(f)};
+
+/* ---------- Settings + soundbytes (difficulty,Text They Say,mp3file) ---------- */
+const saveCfg=()=>store.set("ts_cfg",CFG);
+const norm=s=>String(s).toLowerCase().replace(/\s+/g," ").trim();
+function lines(kind){return BASE[kind].concat(EXTRA[kind].filter(x=>x.d==="all"||x.d===CFG.diff).map(x=>x.t))}
+function parseCSV(t){
+  const rows=[];let r=[],c="",q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}
+    else if(ch==='"')q=true;
+    else if(ch===","){r.push(c);c=""}
+    else if(ch==="\n"||ch==="\r"){if(ch==="\r"&&t[i+1]==="\n")i++;r.push(c);c="";if(r.some(x=>x.trim()))rows.push(r);r=[]}
+    else c+=ch}
+  r.push(c);if(r.some(x=>x.trim()))rows.push(r);return rows;
+}
+function loadCSV(text){
+  SB.map={};SB.n=0;SB.a=0;EXTRA={nice:[],eager:[],curse:[],chat:[]};
+  parseCSV(String(text).replace(/^﻿/,"")).forEach((r,i)=>{
+    if(i===0&&norm(r[0])==="difficulty")return;
+    const d=norm(r[0]||"all"),t=(r[1]||"").trim(),f=(r[2]||"").trim(),k=norm(r[3]||"");
+    if(!t)return;
+    const dd=["easy","medium","hard"].includes(d)?d:"all";
+    SB.n++;if(f)SB.a++;
+    (SB.map[norm(t)]=SB.map[norm(t)]||[]).push({d:dd,f});
+    const known=Object.values(BASE).some(a=>a.some(x=>norm(x)===norm(t)));
+    if(!known){const kind=["nice","eager","curse","chat"].includes(k)?k:"nice";
+      if(!EXTRA[kind].some(x=>norm(x.t)===norm(t)&&x.d===dd))EXTRA[kind].push({t,d:dd})}
+  });
+  sbStatus();
+}
+function fileUrl(f){
+  const k=f.toLowerCase();if(SB.files[k])return SB.files[k];
+  if(/^(https?:)?\/\//.test(f)||f[0]==="/")return f;
+  const b=CFG.base||"";return (!b||b.endsWith("/")?b:b+"/")+f;
+}
+function voice(u,text){
+  if(!CFG.sound||SB.live.size>=3)return;
+  const m=SB.map[norm(String(text).replace(/^🤬\s*/,""))];if(!m)return;
+  const ok=m.filter(x=>x.f&&(x.d==="all"||x.d===CFG.diff));if(!ok.length)return;
+  stopVoice(u);
+  try{const a=new Audio(fileUrl(pick(ok).f));a.volume=CFG.vol;u.audio=a;SB.live.add(a);
+    a.onended=a.onerror=()=>SB.live.delete(a);a.play().catch(()=>SB.live.delete(a))}catch(e){}
+}
+function stopVoice(u){if(u.audio){u.audio.pause();SB.live.delete(u.audio);u.audio=null}}
+function stopAll(){SB.live.forEach(a=>a.pause());SB.live.clear()}
+function sbStatus(){
+  const up=Object.keys(SB.files).length,el=$("#sbStat");if(!el)return;
+  el.textContent=(SB.n?SB.n+" lines loaded · "+SB.a+" with an mp3":"No soundbytes loaded, guests talk silently")+" · "+up+" mp3 file"+(up===1?"":"s")+" uploaded";
+}
+async function saveBlob(blob,name){
+  if(typeof claude!=="undefined"){try{const d=await claude.use("downloads");if(d){await d.save({filename:name,data:blob});return}}catch(e){if(e&&e.code==="declined")return}}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+}
+function csvTemplate(){
+  const q=s=>/[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s,rows=["difficulty,Text They Say,mp3file"];
+  [NICE,EAGER,CURSE].forEach(a=>a.forEach(t=>rows.push("all,"+q(t)+",")));
+  return rows.join("\r\n")+"\r\n";
+}
+function syncCfg(){
+  const s=$("#diffSeg");s.textContent="";
+  ["easy","medium","hard"].forEach(k=>{const b=document.createElement("button");b.textContent=k[0].toUpperCase()+k.slice(1);b.className=CFG.diff===k?"on":"";b.onclick=()=>{CFG.diff=k;saveCfg();syncCfg()};s.appendChild(b)});
+  $("#cfgUnmute").checked=!!CFG.unmute;$("#cfgSound").checked=!!CFG.sound;$("#cfgSfx").checked=!!CFG.sfx;
+  $("#cfgVol").value=CFG.vol;$("#cfgBase").value=CFG.base;sbStatus();
+}
+function openCfg(){if(g&&g.run)g.paused=true;syncCfg();$("#cfgSheet").hidden=false}
+function closeCfg(){$("#cfgSheet").hidden=true;if(g&&g.run&&$("#userSheet").hidden)g.paused=false}
+function initSB(){
+  if(CFG.csv)loadCSV(CFG.csv);
+  else{try{fetch("soundbytes.csv").then(r=>r.ok?r.text():Promise.reject()).then(t=>{if(norm(t.replace(/^﻿/,"")).startsWith("difficulty"))loadCSV(t)}).catch(()=>{})}catch(e){}}
+  sbStatus();
+}
+$("#cfgBtn").onclick=openCfg;$("#cfgBtn2").onclick=openCfg;$("#cfgDone").onclick=closeCfg;
+$("#cfgUnmute").onchange=e=>{CFG.unmute=e.target.checked;saveCfg()};
+$("#cfgSound").onchange=e=>{CFG.sound=e.target.checked;if(!CFG.sound)stopAll();saveCfg()};
+$("#cfgSfx").onchange=e=>{CFG.sfx=e.target.checked;saveCfg()};
+$("#cfgVol").oninput=e=>{CFG.vol=+e.target.value;SB.live.forEach(a=>a.volume=CFG.vol);saveCfg()};
+$("#cfgBase").onchange=e=>{CFG.base=e.target.value.trim();saveCfg()};
+$("#csvUp").onclick=()=>$("#csvIn").click();
+$("#csvIn").onchange=async e=>{const f=e.target.files[0];if(!f)return;const t=await f.text();e.target.value="";loadCSV(t);CFG.csv=t;saveCfg();toast("Loaded "+SB.n+" lines")};
+$("#mp3Up").onclick=()=>$("#mp3In").click();
+$("#mp3In").onchange=e=>{const fs=[...e.target.files];fs.forEach(f=>{const k=f.name.toLowerCase();if(SB.files[k])URL.revokeObjectURL(SB.files[k]);SB.files[k]=URL.createObjectURL(f)});e.target.value="";sbStatus();toast(fs.length+" mp3 file"+(fs.length===1?"":"s")+" added")};
+$("#csvTpl").onclick=()=>saveBlob(new Blob([csvTemplate()],{type:"text/csv"}),"soundbytes.csv");
+$("#csvClr").onclick=()=>{Object.values(SB.files).forEach(u=>URL.revokeObjectURL(u));SB.files={};CFG.csv="";saveCfg();stopAll();loadCSV("");toast("Soundbytes cleared")};
+
+/* ---------- Wire up ---------- */
+$("#how").innerHTML=[["🎥","You’re the creator. Guests join and take the boxes."],["🔗","Watch who shares the LIVE link. Friends join through it."],["😇","Some guests are great. Some act nice for a while, then team up and yell #@$%!"],["🎙️","Tap a mic to mute. Muted guests can switch it back on at random, so remove or block repeat offenders."],["🛡️","Yelling drains community health. Wrongly removing good guests costs you."]].map(([i,t])=>"<div><span>"+i+"</span><span>"+t+"</span></div>").join("");
+$("#playBtn").onclick=()=>{$("#hostName").textContent=P.name;goLive()};$("#again").onclick=goLive;
+$("#helpBtn").onclick=()=>{if(g&&g.run)toast("Check account age, reports and who they joined via. Raids wait until everyone is seated.");else $("#start").hidden=false};
+$("#folBtn").onclick=e=>{const b=e.currentTarget;b.classList.toggle("on");b.textContent=b.classList.contains("on")?"Following":"Follow"};
+$("#endBtn").onclick=()=>{if(g&&g.run)endLive("You ended the LIVE");else $("#start").hidden=false};
+$("#likeBtn").onclick=e=>{const r=e.currentTarget.getBoundingClientRect();for(let i=0;i<4;i++)setTimeout(()=>heart(r.left+Math.random()*30,r.top-10),i*90)};
+$("#chatIn").addEventListener("keydown",e=>{if(e.key!=="Enter")return;const v=e.target.value.trim();if(!v||!g||!g.run)return;e.target.value="";cl("You",v,"me")});
+$("#uClose").onclick=closeUser;
+$("#profBtn").onclick=()=>{$("#nameIn").value=P.name;$("#handleIn").value=P.handle;swatches();$("#profSheet").hidden=false};
+$("#profDone").onclick=()=>{P.name=$("#nameIn").value.trim()||"Troll Whisperer";P.handle=($("#handleIn").value.trim()||"troll.whisperer").replace(/[^\w.]/g,"");store.set("ts_profile",P);paint();$("#profSheet").hidden=true};
+$("#shareBtn").onclick=shareScore;$("#shareScore").onclick=shareScore;$("#saveCard").onclick=saveCard;
+$("#acctBtn").onclick=openAcct;$("#acctClose").onclick=()=>$("#acctSheet").hidden=true;
+$("#gBtn").onclick=()=>AUTH.google();$("#ttBtn").onclick=()=>AUTH.tiktok();
+paint();hud();initSB();
+</script>
+</body>
+</html>
