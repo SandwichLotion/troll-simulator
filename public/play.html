@@ -33,12 +33,10 @@
   <section class="feed z" id="feed" role="log" aria-live="polite" aria-relevant="additions" aria-label="Live chat"></section>
   <div class="bottom z">
     <input id="chatIn" type="text" placeholder="Add comment..." maxlength="80" aria-label="Add comment">
-    <button class="ib" id="moreBtn" aria-label="More: profile, account, share">⋯</button>
+    <button class="ib" id="shareQuick" aria-label="Share"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg></button>
+    <button class="ib" id="moreBtn" aria-label="More options"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
     <button class="ib heartb" id="likeBtn" aria-label="Send likes">❤️</button>
   </div>
-  <footer class="foot z">
-    <nav class="ftl" aria-label="Site"><a href="index.html">🏠 Home</a><button id="ftScores">🏆 Scores</button><button id="ftCfg">⚙️ Settings</button><a href="instructions.html">📖 Help</a><a href="admin.html">🛠️ Admin</a></nav>
-  </footer>
 
   <div class="over" id="start"><div class="card">
     <div class="big" style="font-size:38px">The Troll Simulator</div>
@@ -107,12 +105,20 @@
     <button class="btn" id="scClr">Clear high scores</button>
     <button class="btn pri" id="scDone">Done</button>
   </div></div>
-  <div class="sheet" id="moreSheet" hidden><div class="card">
-    <h2>More</h2>
-    <button class="btn" id="profBtn">✏️ Edit profile</button>
-    <button class="btn" id="acctBtn">👤 Account</button>
-    <button class="btn" id="shareBtn">↗️ Share</button>
-    <button class="btn pri" id="moreDone">Close</button>
+  <div class="sheet" id="moreSheet" hidden><div class="card tts">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 class="tth">More</h2>
+    <div class="ttgrid" role="group" aria-label="More options">
+      <button id="profBtn"><i aria-hidden="true">✏️</i><span>Edit profile</span></button>
+      <button id="acctBtn"><i aria-hidden="true">👤</i><span>Account</span></button>
+      <button id="shareBtn"><i aria-hidden="true">↗️</i><span>Share</span></button>
+      <button id="ftScores"><i aria-hidden="true">🏆</i><span>High scores</span></button>
+      <button id="ftCfg"><i aria-hidden="true">⚙️</i><span>Settings</span></button>
+      <a href="instructions.html"><i aria-hidden="true">❓</i><span>How to play</span></a>
+      <a href="admin.html"><i aria-hidden="true">🛠️</i><span>Admin</span></a>
+      <a href="index.html"><i aria-hidden="true">🏠</i><span>Home</span></a>
+    </div>
+    <button class="ttcancel" id="moreDone">Cancel</button>
   </div></div>
 </main>
 

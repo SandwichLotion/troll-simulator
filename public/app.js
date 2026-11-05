@@ -35,7 +35,7 @@ function signOut(){SESSION=null;store.set("ts_session",null);renderAcct();toast(
 function renderAcct(){
   const on=!!SESSION,u=on?SESSION.user:null;
   $("#acctIn").hidden=!on;$("#acctOut").hidden=on;
-  $("#acctBtn").textContent="👤 "+(on?u.name:"Account");
+  {const l=$("#acctBtn span");if(l)l.textContent=on?u.name:"Account"}
   if(on){
     $("#acctNm").textContent=u.name;const av=$("#acctAv");av.textContent="";
     if(/^https:\/\//.test(u.avatar)){const i=document.createElement("img");i.src=u.avatar;i.alt="";i.referrerPolicy="no-referrer";i.onerror=()=>{av.textContent="🧌"};av.appendChild(i)}else av.textContent="🧌";
@@ -663,6 +663,7 @@ addEventListener("keydown",e=>{
 });
 $("#moreSheet").addEventListener("click",e=>{if(e.target.closest("button"))$("#moreSheet").hidden=true});
 $("#moreBtn").onclick=()=>$("#moreSheet").hidden=false;
+$("#moreDone").onclick=()=>$("#moreSheet").hidden=true;$("#shareQuick").onclick=shareScore;
 $("#layoutBtn").onclick=()=>{const k=Object.keys(LAYOUTS);setLayout(k[(k.indexOf(layout)+1)%k.length])};
 $("#pauseBtn").onclick=()=>{if(g&&g.run)setHold(!g.hold)};
 $("#cfgRelaxed").onchange=e=>{CFG.relaxed=e.target.checked;saveCfg()};

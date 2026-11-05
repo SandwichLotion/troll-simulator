@@ -107,3 +107,27 @@ button.chip{min-height:44px;min-width:44px}.tb{display:flex;gap:4px;margin-left:
 .card a{color:var(--cyan)}
 #uBio{font-size:13px;color:var(--text);background:#ffffff10;border-radius:10px;padding:8px 10px;margin:8px 0}
 .nw{flex:1;min-width:0;display:flex;flex-direction:column}.nw small{color:var(--dim);font-size:11px;white-space:normal}
+/* ---- TikTok LIVE look: chat, bottom bar and bottom sheets ---- */
+.feed{gap:5px}
+.cl{background:#0000004d;border-radius:14px;padding:5px 11px;font-size:13px;line-height:1.35;color:#fff;backdrop-filter:blur(2px)}
+.cl b{color:#ffffffb3;font-weight:600;margin-right:6px}
+.cl.sys{background:none;padding:2px 0;color:#ffffffb3;font-size:12.5px}
+.cl.bad{background:#b3002fe6}.cl.bad b{color:#fff}
+.bottom{gap:8px;padding:6px 10px 12px}
+.bottom input{background:#00000066;border:1px solid #ffffff1f;border-radius:22px;padding:11px 16px;font-size:14px}
+.bottom input::placeholder{color:#ffffffb3}
+.ib{background:#00000066;border:1px solid #ffffff1f;width:44px;height:44px}
+.ib.heartb{background:var(--pink);border-color:transparent}
+.sheet{background:#00000080}
+.card.tts{background:#161823;border-radius:16px 16px 0 0;padding:8px 16px calc(14px + env(safe-area-inset-bottom,0px));max-height:80%}
+.grab{width:36px;height:4px;border-radius:2px;background:#ffffff33;margin:4px auto 10px}
+.tth{text-align:center;font-size:15px!important;font-weight:700;margin:0 0 14px!important}
+.ttgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 4px}
+.ttgrid button,.ttgrid a{display:flex;flex-direction:column;align-items:center;gap:7px;min-height:44px;color:var(--text);text-decoration:none;background:none;font-size:11.5px;font-weight:500;line-height:1.2;text-align:center}
+.ttgrid i{font-style:normal;width:52px;height:52px;border-radius:50%;background:#ffffff14;display:grid;place-items:center;font-size:23px}
+.ttgrid button:active i,.ttgrid a:active i{background:#ffffff26}
+.ttgrid span{color:#ffffffcc;max-width:70px}
+.ttcancel{display:block;width:calc(100% + 32px);margin:16px -16px 0;padding:14px;border-top:8px solid #0000004d;font-weight:600;font-size:15px;color:var(--text)}
+.sheet .card:not(.tts)::before{content:"";display:block;width:36px;height:4px;border-radius:2px;background:#ffffff33;margin:-10px auto 14px}
+.sheet .card:not(.tts){background:#161823;border-radius:16px 16px 0 0}
+.sheet .card h2{font-size:16px;text-align:center;font-weight:700}
