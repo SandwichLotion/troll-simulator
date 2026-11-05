@@ -63,6 +63,14 @@ max_clip_kb=1024
 max_clip_seconds=10
 ```
 
+## Accessibility
+- Guest boxes and their mic buttons are real buttons: Tab to a box, Enter or Space opens the profile, and the 🎙️ mutes. Focus stays on the box when the game redraws.
+- Settings, scores, names and profile are proper dialogs: focus moves in, the page behind is inert, Escape closes, and focus returns to where you were.
+- Joins, link shares, yelling and gift banners are announced by screen readers. Ambient chatter is not.
+- ❚❚ **Pause** stops the clock. **Relaxed mode** (Settings) slows joins and health loss and stops good guests leaving.
+- Reduced-motion is respected, touch targets are 44px, and text colours meet WCAG AA contrast.
+- Switch layouts (grid, large, list) with the layout button.
+
 ## Features
 - TikTok-LIVE style UI with host pill, viewer count, ambient chat, gift banners and floating hearts
 - Editable profile: name, username, emoji photo, photo background or your own upload
