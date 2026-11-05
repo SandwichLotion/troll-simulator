@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import worker, { signSession, verifySession } from "./src/index.js";
+import worker, { signSession, verifySession } from "../lib/auth.js";
 
-const ORIGIN = "https://me.github.io";
-const env = { ALLOWED_ORIGIN: ORIGIN + ", https://other.example", REDIRECT_URI: ORIGIN + "/troll-simulator/", TIKTOK_CLIENT_KEY: "ck", TIKTOK_CLIENT_SECRET: "cs", SESSION_SECRET: "s3cret-for-tests" };
+const ORIGIN = "https://auth.test";
+const env = { ALLOWED_ORIGIN: "https://other.example", REDIRECT_URI: ORIGIN + "/", TIKTOK_CLIENT_KEY: "ck", TIKTOK_CLIENT_SECRET: "cs", SESSION_SECRET: "s3cret-for-tests" };
 const call = (path, init = {}, e = env) => worker.fetch(new Request("https://auth.test" + path, init), e);
 const post = (body, headers = {}) => ({ method: "POST", headers: { Origin: ORIGIN, "Content-Type": "application/json", ...headers }, body: JSON.stringify(body) });
 
@@ -26,6 +26,11 @@ assert.equal(pre.status, 204);
 assert.equal(pre.headers.get("Access-Control-Allow-Origin"), ORIGIN);
 assert.equal((await call("/auth/tiktok", post({ code: "good-code", redirect_uri: env.REDIRECT_URI }, { Origin: "https://evil.example" }))).status, 403);
 assert.equal((await call("/auth/tiktok", { method: "POST", body: "{}" })).status, 403, "no Origin header");
+assert.equal((await call("/auth/tiktok", post({ code: "good-code", redirect_uri: env.REDIRECT_URI }, { Origin: "https://other.example" }))).status, 200, "ALLOWED_ORIGIN extra origin");
+const cfg = await (await call("/auth/config")).json();
+assert.deepEqual(cfg, { tiktokClientKey: "ck", redirectUri: env.REDIRECT_URI });
+assert.equal((await call("/auth/config", {}, { ...env, TIKTOK_CLIENT_KEY: "" })).status, 404);
+assert.ok(!JSON.stringify(cfg).includes("cs"), "config never exposes the secret");
 
 // bad requests
 assert.equal((await call("/auth/tiktok", post({ code: "good-code", redirect_uri: "https://evil.example/" }))).status, 400, "redirect_uri must match");
@@ -58,6 +63,9 @@ const me = await call("/me", { headers: { Origin: ORIGIN, Authorization: "Bearer
 assert.equal(me.status, 200);
 assert.equal((await me.json()).user.name, "Cool Name 🧌");
 assert.equal((await call("/me", { headers: { Origin: ORIGIN } })).status, 401);
+const bare = await call("/me", { headers: { Authorization: "Bearer " + body.session } });
+assert.equal(bare.status, 200, "same-origin GET has no Origin header");
+assert.equal((await call("/me")).status, 401);
 const tampered = body.session.replace(/.$/, (c) => (c === "A" ? "B" : "A"));
 assert.equal((await call("/me", { headers: { Origin: ORIGIN, Authorization: "Bearer " + tampered } })).status, 401, "tampered signature");
 const [pl] = body.session.split(".");

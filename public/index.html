@@ -261,19 +261,23 @@ button.chip{min-height:44px;min-width:44px}.tb{display:flex;gap:4px;margin-left:
 const $=s=>document.querySelector(s);
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
-/* TikTok sign-in (Login Kit). Needs a TikTok developer app and the small server in /worker.
-   Fill in tiktokClientKey (public) and apiBase (your deployed worker URL). See the README. */
+/* TikTok sign-in (Login Kit). Needs a TikTok developer app and the small sign-in server in /lib.
+   Set apiBase to your deployed server's URL (for example https://troll-simulator-auth.<you>.workers.dev).
+   The client key and redirect address come from the server. See the README. Leave apiBase empty to
+   play without sign-in. */
 const AUTH={googleClientId:"",tiktokClientKey:"",apiBase:"",tiktokScope:"user.info.basic",
   redirectUri(){return location.origin+location.pathname},
   async google(){if(!this.googleClientId)return toast("Add your Google client ID in AUTH.googleClientId");
     /* load accounts.google.com/gsi/client, initialize with client_id, POST the credential to your server */},
   async tiktok(){
-    if(!this.tiktokClientKey||!this.apiBase)return toast("TikTok sign-in isn’t set up yet. Add tiktokClientKey and apiBase in AUTH.");
+    let key=this.tiktokClientKey,redir=this.redirectUri();
+    if(!key&&this.apiBase){try{const r=await fetch(api("/auth/config"));if(r.ok){const c=await r.json();key=c.tiktokClientKey;if(c.redirectUri)redir=c.redirectUri}}catch(e){}}
+    if(!key)return toast("TikTok sign-in isn’t set up on this site yet.");
     if(location.protocol!=="https:")return toast("TikTok sign-in only works when the game is served over HTTPS.");
     const a=new Uint8Array(16);crypto.getRandomValues(a);const st=[...a].map(x=>x.toString(16).padStart(2,"0")).join("");
     try{sessionStorage.setItem("ts_oauth_state",st)}catch(e){return toast("Your browser blocked sign-in storage. Allow site data and try again.")}
     const u=new URL("https://www.tiktok.com/v2/auth/authorize/");
-    u.search=new URLSearchParams({client_key:this.tiktokClientKey,scope:this.tiktokScope,response_type:"code",redirect_uri:this.redirectUri(),state:st}).toString();
+    u.search=new URLSearchParams({client_key:key,scope:this.tiktokScope,response_type:"code",redirect_uri:redir,state:st}).toString();
     location.assign(u.toString());
   }};
 let SESSION=store.get("ts_session",null);

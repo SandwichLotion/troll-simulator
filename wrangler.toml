@@ -1,0 +1,16 @@
+# Optional: the sign-in server (a Cloudflare Worker). The game itself is hosted on GitHub Pages.
+name = "troll-simulator-auth"
+main = "lib/auth.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Origin of the game site: scheme and host only, no path or trailing slash
+ALLOWED_ORIGIN = "https://YOUR-USERNAME.github.io"
+# Exact address of the game page. Register this same value as a Web redirect URI in the TikTok developer portal.
+REDIRECT_URI = "https://YOUR-USERNAME.github.io/troll-simulator/"
+# Public client key from the TikTok developer portal
+TIKTOK_CLIENT_KEY = "YOUR_TIKTOK_CLIENT_KEY"
+
+# Secrets are never stored in this file. Set them with:
+#   npx wrangler secret put TIKTOK_CLIENT_SECRET
+#   npx wrangler secret put SESSION_SECRET

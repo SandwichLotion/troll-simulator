@@ -75,47 +75,56 @@ max_clip_seconds=10
 - TikTok-LIVE style UI with host pill, viewer count, ambient chat, gift banners and floating hearts
 - Editable profile: name, username, emoji photo, photo background or your own upload
 - High score saved on the device, share sheet and a downloadable 1080x1920 score card for TikTok
-- No build step, no dependencies: one `index.html`
+- No build step and no dependencies: the game is one `index.html`
+
+## Repo layout
+- `public/`: the game itself (this folder is what gets published): `index.html`, `config.txt`, `soundbytes.csv`, `usernames.csv`, `sounds/`
+- `lib/auth.js`, `wrangler.toml`, `test/`: the optional sign-in server (see below)
+- `.github/workflows/pages.yml`: publishes `public/` to GitHub Pages on every push to `main`
 
 ## Run locally
 ```bash
 git clone https://github.com/<you>/troll-simulator.git
-cd troll-simulator
+cd troll-simulator/public
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
-## Deploy
-Push to `main`. The included GitHub Actions workflow publishes to **GitHub Pages**
-(Settings > Pages > Source: GitHub Actions).
+## Publish on GitHub Pages
+1. Create an empty repo named `troll-simulator` on GitHub and push this repo to it.
+2. In the repo, open **Settings > Pages** and set **Source** to **GitHub Actions**.
+3. After the workflow finishes, the game is live at `https://<you>.github.io/troll-simulator/`.
 
-## Sign in with TikTok
-The game uses TikTok **Login Kit** (OAuth 2.0). The browser sends the player to TikTok, TikTok sends
-them back with a one-time code, and a small server in `worker/` swaps the code for the player's
-TikTok display name and avatar. The server keeps your client secret and returns only a signed
-session token. TikTok's own access and refresh tokens are never sent to the browser or stored.
+High scores, settings and usernames are saved in each player's browser, so the game works with no server.
+
+## Sign in with TikTok (optional, needs a small server)
+GitHub Pages only serves static files, so TikTok sign-in uses a small Cloudflare Worker (`lib/auth.js`).
+The game sends the player to TikTok, TikTok returns them with a one-time code, and the Worker swaps
+the code for the player's TikTok display name and avatar using your client secret. It returns only a
+signed session token. TikTok's own access and refresh tokens are never sent to the browser or stored.
 
 **Set it up (about 15 minutes):**
-1. Host the game over **HTTPS**, for example GitHub Pages (`https://<you>.github.io/troll-simulator/`).
+1. Publish the game on GitHub Pages first (above) so you have its exact address.
 2. In the [TikTok developer portal](https://developers.tiktok.com), create an app and add **Login Kit**.
-   Request the `user.info.basic` scope and register the game's exact URL (with the trailing slash) as
-   a **Web redirect URI**. Extra scopes need TikTok's approval, and the app must pass TikTok's app
-   review before people outside your test accounts can sign in.
-3. Deploy the server (free Cloudflare account):
+   Request the `user.info.basic` scope and register the game's exact address
+   (`https://<you>.github.io/troll-simulator/`, with the trailing slash) as a **Web redirect URI**.
+   Extra scopes need TikTok's approval, and the app must pass TikTok's app review before people
+   outside your test accounts can sign in.
+3. Edit `wrangler.toml`: set `ALLOWED_ORIGIN`, `REDIRECT_URI` and `TIKTOK_CLIENT_KEY`. Then deploy:
    ```bash
-   cd worker
-   # edit wrangler.toml: ALLOWED_ORIGIN, REDIRECT_URI, TIKTOK_CLIENT_KEY
+   npm install
    npx wrangler login
    npx wrangler secret put TIKTOK_CLIENT_SECRET
    npx wrangler secret put SESSION_SECRET      # any long random string
-   npx wrangler deploy
+   npx wrangler deploy                         # prints https://troll-simulator-auth.<you>.workers.dev
    ```
-4. In `index.html`, fill in `AUTH.tiktokClientKey` (public) and `AUTH.apiBase` (the worker URL), commit and push.
-5. Check it: `cd worker && npm test` runs the server tests, and `https://<worker>/health` should return `{"ok":true}`.
+4. In `public/index.html`, set `AUTH.apiBase` to that Worker address, then commit and push. The client key
+   and redirect address are read from the Worker, so they are not stored in the page.
+5. Check it: `npm test` runs the server tests, and `<worker address>/health` should return `{"ok":true}`.
 
 What the player sees: **More > Account > Continue with TikTok**. After approving on TikTok they come back
 signed in, and the host name defaults to their TikTok display name if they hadn't set their own.
-Sessions last 30 days, and the game re-checks them when it opens. High scores are still stored on the
-device. A shared leaderboard would be the next feature on top of this sign-in.
+Sessions last 30 days, and the game re-checks them when it opens. High scores stay on the device.
+A shared leaderboard would be the next feature on top of this sign-in.
 
 Google sign-in is still a placeholder (`AUTH.googleClientId` and `AUTH.google()`).
 
