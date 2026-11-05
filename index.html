@@ -78,7 +78,7 @@ input[type=text]{width:100%;padding:12px;border-radius:10px;border:1px solid #6b
 .sw{display:flex;gap:8px;flex-wrap:wrap}.sw button{width:44px;height:44px;border-radius:12px;border:2px solid transparent;font-size:22px}.sw button.on{border-color:#fff}
 .how{text-align:left;font-size:13px;line-height:1.7;margin:10px 0}.how div{display:flex;gap:8px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;font-size:11px;color:var(--dim)}.stats div{background:#ffffff10;border-radius:12px;padding:8px 2px}.stats b{display:block;color:var(--text);font-size:20px}
-.ucard{text-align:center}.ucard .av{width:84px;height:84px;font-size:46px;margin:0 auto 8px;border-color:var(--cyan)}
+.ucard{text-align:center}.ucard .av{width:84px;height:84px;font-size:46px;margin:0 auto 8px;border-color:var(--cyan);overflow:hidden}.ucard .av img{width:100%;height:100%;object-fit:cover}
 .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.acts button{background:#ffffff14;border-radius:14px;padding:12px 2px;font-size:12px;font-weight:700}.acts span{display:block;font-size:24px}
 #cd{position:absolute;z-index:30;inset:0;display:grid;place-items:center;background:#000a;font-size:140px;font-weight:800}
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:70;background:#fff;color:#111;padding:10px 16px;border-radius:20px;font-weight:700;font-size:13px;max-width:90%;text-align:center}
@@ -179,10 +179,16 @@ button.chip{min-height:44px;min-width:44px}.tb{display:flex;gap:4px;margin-left:
     <button class="btn pri" id="profDone">Save</button>
   </div></div>
   <div class="sheet" id="acctSheet" hidden><div class="card">
-    <h2>Log in to save your score</h2><p id="acctMsg">Create an account to keep your high score across devices.</p>
-    <button class="btn g" id="gBtn">Continue with Google</button>
-    <button class="btn t" id="ttBtn">Continue with TikTok</button>
-    <button class="btn" id="acctClose">Keep playing as guest</button>
+    <div id="acctIn" class="ucard" hidden>
+      <div class="av" id="acctAv"></div><h2 id="acctNm"></h2><p>Signed in with TikTok.</p>
+      <button class="btn" id="outBtn">Sign out</button>
+    </div>
+    <div id="acctOut">
+      <h2>Log in to save your score</h2><p id="acctMsg">Create an account to keep your high score across devices.</p>
+      <button class="btn g" id="gBtn">Continue with Google</button>
+      <button class="btn t" id="ttBtn">Continue with TikTok</button>
+    </div>
+    <button class="btn" id="acctClose">Close</button>
   </div></div>
   <div class="sheet" id="cfgSheet" hidden><div class="card">
     <h2>Settings</h2><p>Saved on this device.</p>
@@ -255,12 +261,61 @@ button.chip{min-height:44px;min-width:44px}.tb{display:flex;gap:4px;margin-left:
 const $=s=>document.querySelector(s);
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
-/* Real logins need your own host and backend. Fill these in there. */
-const AUTH={googleClientId:"",tiktokClientKey:"",
+/* TikTok sign-in (Login Kit). Needs a TikTok developer app and the small server in /worker.
+   Fill in tiktokClientKey (public) and apiBase (your deployed worker URL). See the README. */
+const AUTH={googleClientId:"",tiktokClientKey:"",apiBase:"",tiktokScope:"user.info.basic",
+  redirectUri(){return location.origin+location.pathname},
   async google(){if(!this.googleClientId)return toast("Add your Google client ID in AUTH.googleClientId");
     /* load accounts.google.com/gsi/client, initialize with client_id, POST the credential to your server */},
-  async tiktok(){if(!this.tiktokClientKey)return toast("Add your TikTok client key in AUTH.tiktokClientKey");
-    /* redirect to tiktok.com/v2/auth/authorize/?client_key=...&scope=user.info.basic&response_type=code&redirect_uri=...; your server exchanges the code */}};
+  async tiktok(){
+    if(!this.tiktokClientKey||!this.apiBase)return toast("TikTok sign-in isn’t set up yet. Add tiktokClientKey and apiBase in AUTH.");
+    if(location.protocol!=="https:")return toast("TikTok sign-in only works when the game is served over HTTPS.");
+    const a=new Uint8Array(16);crypto.getRandomValues(a);const st=[...a].map(x=>x.toString(16).padStart(2,"0")).join("");
+    try{sessionStorage.setItem("ts_oauth_state",st)}catch(e){return toast("Your browser blocked sign-in storage. Allow site data and try again.")}
+    const u=new URL("https://www.tiktok.com/v2/auth/authorize/");
+    u.search=new URLSearchParams({client_key:this.tiktokClientKey,scope:this.tiktokScope,response_type:"code",redirect_uri:this.redirectUri(),state:st}).toString();
+    location.assign(u.toString());
+  }};
+let SESSION=store.get("ts_session",null);
+const api=p=>AUTH.apiBase.replace(/\/$/,"")+p;
+function setSession(token,user){
+  SESSION={token,user:{id:String(user.id),name:String(user.name||"TikTok user"),avatar:String(user.avatar||""),exp:Number(user.exp)||0}};
+  store.set("ts_session",SESSION);
+  if(P.name==="Troll Whisperer"){P.name=SESSION.user.name.slice(0,24);store.set("ts_profile",P);paint()}
+  renderAcct();
+}
+function signOut(){SESSION=null;store.set("ts_session",null);renderAcct();toast("Signed out")}
+function renderAcct(){
+  const on=!!SESSION,u=on?SESSION.user:null;
+  $("#acctIn").hidden=!on;$("#acctOut").hidden=on;
+  $("#acctBtn").textContent="👤 "+(on?u.name:"Account");
+  if(on){
+    $("#acctNm").textContent=u.name;const av=$("#acctAv");av.textContent="";
+    if(/^https:\/\//.test(u.avatar)){const i=document.createElement("img");i.src=u.avatar;i.alt="";i.referrerPolicy="no-referrer";i.onerror=()=>{av.textContent="🧌"};av.appendChild(i)}else av.textContent="🧌";
+  }
+}
+async function handleAuthReturn(){
+  const q=new URLSearchParams(location.search);
+  if(!q.has("code")&&!q.has("error"))return;
+  const code=q.get("code"),state=q.get("state"),err=q.get("error");
+  history.replaceState(null,"",location.pathname+location.hash);
+  let saved=null;try{saved=sessionStorage.getItem("ts_oauth_state");sessionStorage.removeItem("ts_oauth_state")}catch(e){}
+  if(err){toast("TikTok sign-in was cancelled or isn’t available for this account.");return}
+  if(!code||!state||!saved||state!==saved){toast("TikTok sign-in couldn’t be verified. Please try again.");return}
+  if(!AUTH.apiBase){toast("TikTok sign-in isn’t set up on this site.");return}
+  try{
+    const r=await fetch(api("/auth/tiktok"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code,redirect_uri:AUTH.redirectUri()})});
+    const j=await r.json();if(!r.ok||!j.session||!j.user)throw new Error("auth");
+    setSession(j.session,j.user);toast("Signed in as "+j.user.name);
+  }catch(e){toast("TikTok sign-in failed. Please try again.")}
+}
+async function checkSession(){
+  if(!SESSION||!AUTH.apiBase)return;
+  try{
+    const r=await fetch(api("/me"),{headers:{Authorization:"Bearer "+SESSION.token}});
+    if(r.status===401){SESSION=null;store.set("ts_session",null);renderAcct();toast("Your TikTok sign-in expired. Sign in again.")}
+  }catch(e){/* offline: keep the saved sign-in */}
+}
 
 const A=["xX","real","not","itz","big","lil","mr","its"],B=["hater","gamer","dave","pixel","karen","vibes","ghost","toad","fr","noodle"];
 const NICE=["hi everyone! 👋","love this live","great vibes ✨","hello from Texas","can you say hi?","this is fun","first time here!","nice setup"];
@@ -471,7 +526,7 @@ function cardBlob(){return new Promise(res=>{
   x.font="500 46px sans-serif";x.fillText("Can you beat me?",540,1500);c.toBlob(res,"image/png")})}
 async function saveCard(){const b=await cardBlob();await saveBlob(b,"troll-simulator-score.png")}
 async function openAcct(){
-  $("#acctSheet").hidden=false;
+  $("#acctSheet").hidden=false;renderAcct();
   try{const u=await claude.use("user");if(u){const me=await u.me();if(me&&me.name)$("#acctMsg").textContent="Viewing as "+me.name+" via Claude. Your high score is saved on this device."}}catch(e){}
 }
 
@@ -795,7 +850,7 @@ $("#profBtn").onclick=()=>{$("#nameIn").value=P.name;$("#handleIn").value=P.hand
 $("#profDone").onclick=()=>{P.name=$("#nameIn").value.trim()||"Troll Whisperer";P.handle=($("#handleIn").value.trim()||"troll.whisperer").replace(/[^\w.]/g,"");store.set("ts_profile",P);paint();$("#profSheet").hidden=true};
 $("#shareBtn").onclick=shareScore;$("#shareScore").onclick=shareScore;$("#saveCard").onclick=saveCard;
 $("#acctBtn").onclick=openAcct;$("#acctClose").onclick=()=>$("#acctSheet").hidden=true;
-$("#gBtn").onclick=()=>AUTH.google();$("#ttBtn").onclick=()=>AUTH.tiktok();
+$("#gBtn").onclick=()=>AUTH.google();$("#ttBtn").onclick=()=>AUTH.tiktok();$("#outBtn").onclick=signOut;
 /* ---------- Accessibility: layouts, pause, dialogs, keyboard ---------- */
 function setLayout(l){
   if(!LAYOUTS[l])l="grid";layout=l;store.set("ts_layout",l);
@@ -852,7 +907,7 @@ $("#pauseBtn").onclick=()=>{if(g&&g.run)setHold(!g.hold)};
 $("#cfgRelaxed").onchange=e=>{CFG.relaxed=e.target.checked;saveCfg()};
 setLayout(layout);
 
-paint();hud();initSB();initData();initLimits();
+paint();hud();initSB();initData();initLimits();renderAcct();handleAuthReturn().then(checkSession);
 </script>
 </body>
 </html>

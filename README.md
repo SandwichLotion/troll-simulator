@@ -88,13 +88,39 @@ python3 -m http.server 8000   # then open http://localhost:8000
 Push to `main`. The included GitHub Actions workflow publishes to **GitHub Pages**
 (Settings > Pages > Source: GitHub Actions).
 
-## Accounts and login (not wired yet)
-`index.html` has an `AUTH` object with `googleClientId` and `tiktokClientKey` hooks. Real sign-in
-needs a small backend to verify Google credentials and to exchange TikTok Login Kit codes. A shared
-leaderboard needs the same backend (for example Supabase or Firebase).
+## Sign in with TikTok
+The game uses TikTok **Login Kit** (OAuth 2.0). The browser sends the player to TikTok, TikTok sends
+them back with a one-time code, and a small server in `worker/` swaps the code for the player's
+TikTok display name and avatar. The server keeps your client secret and returns only a signed
+session token. TikTok's own access and refresh tokens are never sent to the browser or stored.
+
+**Set it up (about 15 minutes):**
+1. Host the game over **HTTPS**, for example GitHub Pages (`https://<you>.github.io/troll-simulator/`).
+2. In the [TikTok developer portal](https://developers.tiktok.com), create an app and add **Login Kit**.
+   Request the `user.info.basic` scope and register the game's exact URL (with the trailing slash) as
+   a **Web redirect URI**. Extra scopes need TikTok's approval, and the app must pass TikTok's app
+   review before people outside your test accounts can sign in.
+3. Deploy the server (free Cloudflare account):
+   ```bash
+   cd worker
+   # edit wrangler.toml: ALLOWED_ORIGIN, REDIRECT_URI, TIKTOK_CLIENT_KEY
+   npx wrangler login
+   npx wrangler secret put TIKTOK_CLIENT_SECRET
+   npx wrangler secret put SESSION_SECRET      # any long random string
+   npx wrangler deploy
+   ```
+4. In `index.html`, fill in `AUTH.tiktokClientKey` (public) and `AUTH.apiBase` (the worker URL), commit and push.
+5. Check it: `cd worker && npm test` runs the server tests, and `https://<worker>/health` should return `{"ok":true}`.
+
+What the player sees: **More > Account > Continue with TikTok**. After approving on TikTok they come back
+signed in, and the host name defaults to their TikTok display name if they hadn't set their own.
+Sessions last 30 days, and the game re-checks them when it opens. High scores are still stored on the
+device. A shared leaderboard would be the next feature on top of this sign-in.
+
+Google sign-in is still a placeholder (`AUTH.googleClientId` and `AUTH.google()`).
 
 ## Roadmap
-- Real Google and TikTok login, global leaderboard
+- Google login, global leaderboard (scores tied to the TikTok sign-in)
 - Mic/camera indicators, more troll behaviours, daily challenges
 
 ## License

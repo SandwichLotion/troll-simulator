@@ -1,0 +1,10 @@
+{
+  "name": "troll-simulator-auth",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  }
+}
