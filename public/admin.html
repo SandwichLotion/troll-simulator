@@ -19,8 +19,28 @@
 <p class="lead">Manage the guest list, TikTok bios, soundbytes and limits. Changes apply to the game on this device right away.</p>
 <div class="note"><p>Everything here is saved in this browser only, and this page has no password. Use <b>Export save file</b> at the bottom to back it up or move it to another device.</p></div>
 <ul class="toc" aria-label="On this page">
-<li><a href="#guests">Guest list</a></li><li><a href="#sounds">Soundbytes</a></li><li><a href="#limits">Limits</a></li><li><a href="#data">Your data</a></li>
+<li><a href="#followers">Followers</a></li><li><a href="#guests">Guest list</a></li><li><a href="#sounds">Soundbytes</a></li><li><a href="#limits">Limits</a></li><li><a href="#data">Your data</a></li>
 </ul>
+
+<section class="panel card" id="followers" aria-labelledby="fh">
+  <h2 id="fh">Followers of @thetrollsimulator</h2>
+  <p>Everyone who follows <a href="https://www.tiktok.com/@thetrollsimulator" target="_blank" rel="noopener noreferrer">@thetrollsimulator</a> on TikTok can appear in the game as a friendly guest, with a <i class="fbadge">Follower</i> badge next to their name. Followers are never cast as trolls.</p>
+  <p>The list every visitor sees is the <code>followers.csv</code> file published with the site, so new followers show up with the next update.</p>
+  <p id="flStat" role="status"></p>
+  <ul class="fllist" id="flList" aria-label="Followers"></ul>
+  <h3>Update the list</h3>
+  <ol>
+    <li>In TikTok, open <b>Settings and privacy → Account → Download your data</b>, request your data as JSON or TXT, and download it when it’s ready.</li>
+    <li>Unzip the download and choose the file inside it below. Or paste usernames, one per line.</li>
+    <li>Check the list, then select <b>Download followers.csv</b> and replace <code>public/followers.csv</code> in the repo. When it’s pushed, everyone sees the new list.</li>
+  </ol>
+  <button class="btn pri" id="flUp">Import TikTok data file</button><input type="file" id="flIn" accept=".json,.txt,.csv,application/json,text/plain,text/csv" hidden>
+  <label for="flPaste">Or paste usernames or profile links</label>
+  <textarea id="flPaste" placeholder="@username&#10;https://www.tiktok.com/@another"></textarea>
+  <button class="btn" id="flPasteGo">Use pasted list</button>
+  <button class="btn" id="flDl">Download followers.csv</button>
+  <button class="btn" id="flLocal" hidden>Stop previewing and use the published list</button>
+</section>
 
 <section class="panel card" id="guests" aria-labelledby="gh">
   <h2 id="gh">Guest list</h2>

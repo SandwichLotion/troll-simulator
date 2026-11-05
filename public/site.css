@@ -47,3 +47,4 @@ td.pt{font-weight:800}td.pos{color:#3ddc84}td.neg{color:#ff6b81}
 .sitefoot .sitenav{margin:0 0 8px -12px}
 .toc{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px;padding:0;list-style:none}
 .toc a{display:flex;align-items:center;min-height:44px;padding:0 14px;border-radius:22px;background:#ffffff12;text-decoration:none;color:var(--text);font-weight:700;font-size:14px}
+.fbadge{display:inline-block;font-style:normal;font-weight:800;font-size:12px;line-height:1;padding:3px 7px;border-radius:5px;color:#000;background:linear-gradient(90deg,var(--cyan),#ffd84d);vertical-align:2px}

@@ -73,7 +73,7 @@ input[type=text]{width:100%;padding:12px;border-radius:10px;border:1px solid #6b
 .ucard{text-align:center}.ucard .av{width:84px;height:84px;font-size:46px;margin:0 auto 8px;border-color:var(--cyan);overflow:hidden}.ucard .av img{width:100%;height:100%;object-fit:cover}
 .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.acts button{background:#ffffff14;border-radius:14px;padding:12px 2px;font-size:12px;font-weight:700}.acts span{display:block;font-size:24px}
 #cd{position:absolute;z-index:30;inset:0;display:grid;place-items:center;background:#000a;font-size:140px;font-weight:800}
-.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:70;background:#fff;color:#111;padding:10px 16px;border-radius:20px;font-weight:700;font-size:13px;max-width:90%;text-align:center}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:70;background:#2a2a33;color:var(--text);border:1px solid #ffffff22;padding:10px 16px;border-radius:20px;font-weight:700;font-size:13px;max-width:90%;text-align:center}
 .card h3{margin:18px 0 2px;font-size:15px}.card code{background:#ffffff18;border-radius:6px;padding:1px 5px;font-size:12px}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.seg button{padding:12px 4px;border-radius:12px;background:#ffffff14;font-weight:700;border:2px solid transparent}.seg button.on{border-color:var(--cyan)}
 .chk{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text);margin:12px 0 0}.chk input{width:20px;height:20px;accent-color:var(--pink);flex:none}
@@ -131,3 +131,12 @@ button.chip{min-height:44px;min-width:44px}.tb{display:flex;gap:4px;margin-left:
 .sheet .card:not(.tts)::before{content:"";display:block;width:36px;height:4px;border-radius:2px;background:#ffffff33;margin:-10px auto 14px}
 .sheet .card:not(.tts){background:#161823;border-radius:16px 16px 0 0}
 .sheet .card h2{font-size:16px;text-align:center;font-weight:700}
+
+/* Follower badge: shown before the names of people who follow the game's TikTok account */
+.fbadge{display:inline-block;vertical-align:1px;font-style:normal;font-weight:800;font-size:9.5px;line-height:1;letter-spacing:.02em;padding:2px 5px;margin-right:4px;border-radius:4px;color:#000;background:linear-gradient(90deg,var(--cyan),#ffd84d)}
+#uName .fbadge{font-size:12px;padding:3px 7px;vertical-align:3px}
+.cl .fbadge{margin-right:4px}
+.fllist{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:8px 0;max-height:260px;overflow:auto}
+.fllist li{background:#ffffff12;border-radius:14px;padding:4px 10px;font-size:13px}.fllist a{text-decoration:none}
+#flPaste{width:100%;max-width:520px;min-height:96px;background:#0a0a0e;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px;font:inherit;font-size:14px}
+.box .boxb{position:absolute;left:5px;top:24px;margin:0;z-index:1}.boxes.list .boxb{left:52px;top:auto;bottom:8px}

@@ -120,7 +120,7 @@ function begin(){
   setHold(false);syncDiff();step();g.tick=setInterval(step,500);
 }
 function cl(name,text,cls){const f=$("#feed"),d=document.createElement("div");d.className="cl "+(cls||"");if(!cls)d.setAttribute("aria-hidden","true");
-  if(name){const b=document.createElement("b");b.textContent=name;d.appendChild(b)}
+  if(name){if(isFollower(name)){const i=document.createElement("i");i.className="fbadge";i.textContent=FOLLOW_BADGE;d.appendChild(i)}const b=document.createElement("b");b.textContent=name;d.appendChild(b)}
   d.appendChild(document.createTextNode(text));f.appendChild(d);while(f.children.length>7)f.firstChild.remove()}
 const sys=t=>cl("",t,"sys");
 function mkUser(bad,grp){
@@ -211,9 +211,9 @@ function render(){
     const u=g.boxes[i],d=document.createElement("div");
     if(!u){d.className="box empty";d.innerHTML='<span aria-hidden="true">⏳</span>Waiting for guests';el.appendChild(d);continue}
     d.className="box"+(u.yelling?" yell":"")+(u.muted?" muted":"");d.style.background=BGS[u.bg];
-    const st=(u.yelling?"Yelling. ":u.muted?"Mic muted. ":"Mic on. ")+(u.sharer?"Shared the LIVE link. ":"")+(u.via?"Joined via "+u.via+". ":"");
+    const st=(isFollower(u.name)?FOLLOW_BADGE+". ":"")+(u.yelling?"Yelling. ":u.muted?"Mic muted. ":"Mic on. ")+(u.sharer?"Shared the LIVE link. ":"")+(u.via?"Joined via "+u.via+". ":"");
     const open=document.createElement("button");open.className="open";open.dataset.act="open";open.dataset.u=u.id;open.setAttribute("aria-label","Open profile for "+u.name+". "+st);
-    d.innerHTML='<span class="em" aria-hidden="true">'+u.emoji+'</span>'+(u.sharer?'<i class="shr" aria-hidden="true">🔗</i>':'')+'<b class="nm" aria-hidden="true">'+esc(u.name)+'</b>'+(u.via?'<em class="via" aria-hidden="true">via '+esc(u.via)+'</em>':'')+'<div class="say" aria-hidden="true">'+(u.yelling?"🤬 ":"")+esc(u.say)+'</div>';
+    d.innerHTML='<span class="em" aria-hidden="true">'+u.emoji+'</span>'+(u.sharer?'<i class="shr" aria-hidden="true">🔗</i>':'')+'<b class="nm" aria-hidden="true">'+esc(u.name)+'</b>'+(isFollower(u.name)?'<i class="fbadge boxb" aria-hidden="true">'+FOLLOW_BADGE+'</i>':'')+(u.via?'<em class="via" aria-hidden="true">via '+esc(u.via)+'</em>':'')+'<div class="say" aria-hidden="true">'+(u.yelling?"🤬 ":"")+esc(u.say)+'</div>';
     const mic=document.createElement("button");mic.className="mic";mic.dataset.act="mute";mic.dataset.u=u.id;mic.textContent=u.mic?"🎙️":"🔇";
     mic.setAttribute("aria-label","Mute microphone for "+u.name);mic.setAttribute("aria-pressed",String(!!u.muted));
     d.append(open,mic);el.appendChild(d);
@@ -249,8 +249,8 @@ function act(u,k){
 }
 function openUser(u){
   if(!g||!g.run||u.gone)return;g.paused=true;
-  $("#uAv").textContent=u.emoji;$("#uAv").style.background=BGS[u.bg];$("#uName").textContent=u.name;
-  $("#uSub").textContent=u.yelling?"🤬 Yelling right now":u.muted?"🔇 Mic muted":"🎙️ Mic on";
+  $("#uAv").textContent=u.emoji;$("#uAv").style.background=BGS[u.bg];$("#uName").innerHTML=followBadge(u.name)+esc(u.name);
+  $("#uSub").textContent=(u.yelling?"🤬 Yelling right now":u.muted?"🔇 Mic muted":"🎙️ Mic on")+(isFollower(u.name)?" · Follows "+FOLLOW_ACCOUNT:"");
   const bio=bioFor(u.name),ub=$("#uBio");ub.textContent=bio;ub.hidden=!bio;
   $("#uDos").innerHTML='<div><b>'+u.age+' days</b>Account age</div><div><b>'+fmt(u.fol)+'</b>Followers</div><div><b>'+u.rep+'</b>Reports</div><div><b>'+(u.via?esc(u.via):"For You feed")+'</b>Joined via</div><div style="grid-column:1/-1"><b>'+(u.sharer?"Yes 🔗":"No")+'</b>Shared the LIVE link</div>';
   const a=$("#uActs");a.textContent="";
@@ -410,9 +410,67 @@ function renderScores(){
 }
 function openScores(){scTab=CFG.diff;renderScores();openSheet("#scoreSheet")}
 
+/* Followers of the game's TikTok account. The published list is public/followers.csv (username,bio);
+   the Admin page can preview an imported list on one device and download a new followers.csv. */
+const FOLLOW_ACCOUNT="@thetrollsimulator",FOLLOW_BADGE="Follower",FOLLOW_MIX=.5;
+let FOLLOWERS=[],FOLLOW_SET=new Set(),FOLLOW_SRC="none";
+const isFollower=name=>FOLLOW_SET.has(String(name).toLowerCase());
+function followBadge(name){return isFollower(name)?'<i class="fbadge" title="Follows '+FOLLOW_ACCOUNT+' on TikTok">'+FOLLOW_BADGE+'</i>':""}
+function setFollowers(list,src){
+  const seen=new Set();FOLLOWERS=[];
+  list.forEach(x=>{const h=cleanHandle(x&&x.n);if(!h)return;const k=("@"+h).toLowerCase();if(seen.has(k))return;seen.add(k);FOLLOWERS.push({n:"@"+h,bio:cleanBio(x.bio)})});
+  FOLLOW_SET=seen;FOLLOW_SRC=src;renderFollowers();
+}
+function followersFromCSV(text){
+  const out=[];parseCSV(String(text).replace(/^\uFEFF/,"")).forEach((r,i)=>{if(i===0&&/^user ?name$/i.test(String(r[0]).trim()))return;out.push({n:r[0],bio:r[1]})});return out;
+}
+/* Reads TikTok's "Download your data" export (JSON or TXT), a CSV, or a pasted list of usernames or profile links. */
+function extractFollowers(text){
+  let t=String(text==null?"":text).replace(/^\uFEFF/,"").trim();const out=[];
+  if(/^[\[{]/.test(t)){
+    let j=null;try{j=JSON.parse(t)}catch(e){}
+    const walk=(v,inF)=>{
+      if(Array.isArray(v))return v.forEach(x=>walk(x,inF));
+      if(v&&typeof v==="object")for(const k of Object.keys(v)){const kl=k.toLowerCase(),f=inF||(/fan|follower/.test(kl)&&!/following/.test(kl));
+        if(f&&/^user ?name$/i.test(k)&&typeof v[k]==="string")out.push({n:v[k]});else walk(v[k],f)}
+    };
+    if(j)walk(j,false);
+    return out;
+  }
+  const sec=t.search(/follower(s)?( list)?\s*[:\n]/i);
+  if(sec>=0){const rest=t.slice(sec+8),end=rest.search(/\n\s*(following|like|favorite|block|comment|hashtag)[^\n]*\n/i);t=t.slice(sec,end>=0?sec+8+end:undefined)}
+  const re=/user ?name:\s*@?([A-Za-z0-9._]+)/gi;let m;while((m=re.exec(t)))out.push({n:m[1]});
+  if(!out.length)followersFromCSV(t).forEach(x=>out.push(x));
+  return out;
+}
+function initFollowers(){
+  const local=store.get("ts_followers_local",null);
+  if(Array.isArray(local)&&local.length)return setFollowers(local,"local");
+  renderFollowers();
+  try{fetch("followers.csv?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():Promise.reject()).then(t=>{if(!store.get("ts_followers_local",null))setFollowers(followersFromCSV(t),"published")}).catch(()=>{})}catch(e){}
+}
+function renderFollowers(){
+  const st=$("#flStat");if(!has("flStat"))return;
+  const n=FOLLOWERS.length;
+  st.textContent=FOLLOW_SRC==="local"?"Previewing "+n+" imported follower"+(n===1?"":"s")+" on this device. Visitors still see the published list until you update followers.csv.":n+" follower"+(n===1?"":"s")+" in the published list.";
+  $("#flLocal").hidden=FOLLOW_SRC!=="local";
+  const l=$("#flList");l.textContent="";
+  FOLLOWERS.forEach(x=>{const li=document.createElement("li"),a=document.createElement("a");a.textContent=x.n;a.href="https://www.tiktok.com/"+x.n;a.target="_blank";a.rel="noopener noreferrer";li.appendChild(a);l.appendChild(li)});
+  if(!n){const li=document.createElement("li");li.textContent="No followers listed yet.";l.appendChild(li)}
+}
+function followersCSV(){return "username,bio\r\n"+FOLLOWERS.map(x=>x.n+","+(/[",\r\n]/.test(x.bio)?'"'+x.bio.replace(/"/g,'""')+'"':x.bio)).join("\r\n")+"\r\n"}
+function importFollowers(text){
+  const list=extractFollowers(text);
+  const prev=new Map(FOLLOWERS.map(x=>[x.n.toLowerCase(),x.bio]));   /* keep bios you already wrote */
+  list.forEach(x=>{const h=cleanHandle(x.n);if(h&&!x.bio)x.bio=prev.get(("@"+h).toLowerCase())||""});
+  const ok=list.filter(x=>cleanHandle(x.n));
+  if(!ok.length){toast("No follower usernames found in that file");return}
+  store.set("ts_followers_local",ok);setFollowers(ok,"local");toast(FOLLOWERS.length+" followers imported");
+}
+
 /* usernames: TikTok names you submit + an optional CSV sheet (username,type) */
 const cleanBio=b=>String(b==null?"":b).replace(/[\u0000-\u001f]/g," ").replace(/\s+/g," ").trim().slice(0,150);
-function bioFor(name){const k=String(name).toLowerCase(),a=NAMES.find(x=>x.n.toLowerCase()===k)||SHEET.find(x=>x.n.toLowerCase()===k);return a&&a.bio?a.bio:""}
+function bioFor(name){const k=String(name).toLowerCase(),a=FOLLOWERS.find(x=>x.n.toLowerCase()===k&&x.bio)||NAMES.find(x=>x.n.toLowerCase()===k)||SHEET.find(x=>x.n.toLowerCase()===k);return a&&a.bio?a.bio:""}
 function cleanHandle(raw){
   let n=String(raw==null?"":raw).trim();const m=n.match(/tiktok\.com\/@([^/?#\s]+)/i);if(m)n=m[1];n=n.replace(/^@+/,"");
   return /^[A-Za-z0-9_.]{2,24}$/.test(n)&&!n.endsWith(".")?n:null;
@@ -435,8 +493,9 @@ function loadSheet(text){
   renderNames();
 }
 function genName(bad){
+  if(!bad&&FOLLOWERS.length&&Math.random()<FOLLOW_MIX)return pick(FOLLOWERS).n;   /* followers only ever play friendly guests */
   const pool=[];
-  SHEET.forEach(x=>{if(x.type==="any"||x.type===(bad?"bad":"good"))pool.push(x.n)});
+  SHEET.forEach(x=>{if((x.type==="any"||x.type===(bad?"bad":"good"))&&!(bad&&isFollower(x.n)))pool.push(x.n)});
   if(!bad)NAMES.forEach(x=>pool.push(x.n));   /* submitted TikTok names only ever play friendly guests */
   if(pool.length&&Math.random()<CFG.nameMix)return pick(pool);
   return "@"+pick(A)+"_"+pick(B)+ri(1,99);
@@ -492,8 +551,13 @@ function initData(){
   const st=store.get("ts_namesheet","");
   if(st)loadSheet(st);
   else{try{fetch("usernames.csv").then(r=>r.ok?r.text():Promise.reject()).then(t=>{if(norm(t.replace(/^﻿/,"")).startsWith("username"))loadSheet(t)}).catch(()=>{})}catch(e){}}
-  syncDiff();renderNames();
+  syncDiff();renderNames();initFollowers();
 }
+$("#flUp").onclick=()=>$("#flIn").click();
+$("#flIn").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;if(/\.zip$/i.test(f.name))return toast("Unzip the TikTok download first, then choose the file inside it");importFollowers(await f.text())};
+$("#flPasteGo").onclick=()=>{const v=$("#flPaste").value;if(!v.trim())return toast("Paste some usernames first");importFollowers(v);$("#flPaste").value=""};
+$("#flDl").onclick=()=>saveBlob(new Blob([followersCSV()],{type:"text/csv"}),"followers.csv");
+$("#flLocal").onclick=()=>{store.set("ts_followers_local",null);FOLLOW_SRC="none";setFollowers([],"none");initFollowers();toast("Back to the published list")};
 $("#scBtn2").onclick=$("#scBtn3").onclick=$("#ftScores").onclick=openScores;
 $("#nmBtn2").onclick=$("#ftNames").onclick=openNames;
 $("#cfgBtn3").onclick=$("#ftCfg").onclick=openCfg;

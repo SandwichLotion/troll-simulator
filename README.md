@@ -86,6 +86,20 @@ max_clip_seconds=10
   - `admin.html`: guest list and TikTok bios, soundbytes, clip limits, backup
   - `app.js`, `game.css`, `site.css`: shared code and styles
   - `config.txt`, `soundbytes.csv`, `usernames.csv`, `sounds/`: default data
+  - `followers.csv`: followers of @thetrollsimulator (`username,bio`). Everyone on this list joins as
+    a friendly guest with a **Follower** badge and is never cast as a troll.
+
+## Updating the follower list
+Anyone who follows [@thetrollsimulator](https://www.tiktok.com/@thetrollsimulator) on TikTok is added
+with the next update. To update:
+1. In TikTok: **Settings and privacy → Account → Download your data** (JSON or TXT), then unzip it.
+2. On the Admin page, **Import TikTok data file** (or paste usernames). This previews the list on your
+   device only and keeps any bios already in the list.
+3. **Download followers.csv**, replace `public/followers.csv`, commit and push. GitHub Pages republishes
+   it and every visitor gets the new list.
+
+The badge text and how often followers are picked for guest boxes are `FOLLOW_BADGE` and `FOLLOW_MIX` at
+the top of the follower section in `public/app.js`.
 - `lib/auth.js`, `wrangler.toml`, `test/`: the optional sign-in server (see below)
 - `.github/workflows/pages.yml`: publishes `public/` to GitHub Pages on every push to `main`
 
