@@ -66,7 +66,9 @@ assert.equal((await call("/me", { headers: { Origin: ORIGIN } })).status, 401);
 const bare = await call("/me", { headers: { Authorization: "Bearer " + body.session } });
 assert.equal(bare.status, 200, "same-origin GET has no Origin header");
 assert.equal((await call("/me")).status, 401);
-const tampered = body.session.replace(/.$/, (c) => (c === "A" ? "B" : "A"));
+/* flip a character at the start of the signature: the last base64 character can carry unused bits, so changing it may not change the decoded bytes */
+const dot = body.session.lastIndexOf(".");
+const tampered = body.session.slice(0, dot + 1) + (body.session[dot + 1] === "A" ? "B" : "A") + body.session.slice(dot + 2);
 assert.equal((await call("/me", { headers: { Origin: ORIGIN, Authorization: "Bearer " + tampered } })).status, 401, "tampered signature");
 const [pl] = body.session.split(".");
 assert.equal((await call("/me", { headers: { Origin: ORIGIN, Authorization: "Bearer " + pl + "." + "AAAA" } })).status, 401);
