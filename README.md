@@ -16,12 +16,21 @@ community health up.
 - Yelling drains 🛡️ community health. At 0, your LIVE is ended.
 - Levels last 50 seconds: more boxes, faster joins, bigger raids, trojan links.
 
-## Settings (⚙️)
-- **Difficulty:** Easy, Medium or Hard (join pace, how long sleeper trolls stay nice, health drain).
-- Toggle muted guests turning their mic back on, game sound effects, soundbytes and volume.
-- Upload a soundbytes CSV and mp3 files, download a CSV template, or clear them.
+## Settings (⚙️) and your data
+- **Difficulty:** Easy, Medium or Hard. Pick it on the start screen or in Settings (between LIVEs).
+  It changes join pace, how long sleeper trolls stay nice, how many guests are trolls and how fast
+  community health drains. Settings are saved on this device.
+- **High scores:** saved in your browser's local storage, a separate top 30 per difficulty. Open the
+  🏆 list from the start screen, end screen or footer. **Export save file** writes a
+  `troll-simulator-save.json` to your computer (scores, profile, settings, username list) and
+  **Import save file** restores it. Clearing site data erases local scores, so export a backup.
+- **Usernames:** guests take names from your lists. Add a TikTok `@username` in the footer (or a
+  profile link) and it joins the guest list as a friendly guest, with a link to the real profile.
+  Upload a `usernames.csv` (`username,type` where type is `good`, `bad` or `any`) in the 👥 Usernames
+  sheet and choose how often guests use custom names.
+- Toggles for muted guests turning their mic back on, game sound effects, soundbytes and volume.
 
-## Soundbytes (CSV)
+## Soundbytes (CSV + grid)
 Link recordings to what guests say. One row per line, three columns:
 
 ```csv
@@ -35,15 +44,24 @@ hard,#@$%&!,bleep-2.mp3
 - `difficulty`: `easy`, `medium`, `hard` or `all`.
 - `Text They Say`: the exact line a guest says (case-insensitive). Repeat a line with several mp3
   files and one is picked at random. Yelling guests say the censored text such as `#@$%&!`.
-- `mp3file`: a file name. It is matched against mp3 files you upload in Settings, otherwise it is
-  loaded from the **MP3 folder or URL** setting (default `sounds/`). Leave blank for silent lines.
+- `mp3file`: a file name. It is matched against mp3 files you upload, otherwise it is loaded from the
+  **MP3 folder or URL** setting (default `sounds/`). Leave blank for silent lines.
 - Optional 4th column `type` (`nice`, `eager`, `curse`, `chat`) adds a **new** line to the game's
   pool for that difficulty. Without it, new lines are treated as `nice`.
-- `soundbytes.csv` in the site root loads automatically. A CSV uploaded in Settings is remembered
-  on that device, but uploaded mp3 files must be re-added each visit.
+- `soundbytes.csv` in the site root loads automatically. A CSV loaded in Settings is remembered on
+  that device, but uploaded mp3 files must be re-added each visit.
 
-`soundbytes.csv` in this repo lists every built-in line with an empty mp3 column. Fill it in and
-drop the mp3 files into `sounds/`.
+**Grid:** once a CSV is loaded, the 🎚️ Soundbyte grid lists every line with a drop box for its mp3.
+Drag mp3 files anywhere on the grid (matched by file name), or drop one on a specific line's box to
+link it to that line, or tap a box to choose a file. ▶ previews a clip and ✕ unlinks it. Clips over
+the size or length limit are rejected with a message. "Download this sheet as CSV" saves your links.
+
+**Clip limits** come from a text file, `config.txt` in the site root (or load one in Settings):
+
+```
+max_clip_kb=1024
+max_clip_seconds=10
+```
 
 ## Features
 - TikTok-LIVE style UI with host pill, viewer count, ambient chat, gift banners and floating hearts

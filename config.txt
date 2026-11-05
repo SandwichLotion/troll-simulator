@@ -1,0 +1,5 @@
+# Troll Simulator config. Lines starting with # are comments.
+# Largest allowed mp3 clip, in kilobytes
+max_clip_kb=1024
+# Longest allowed clip, in seconds
+max_clip_seconds=10
