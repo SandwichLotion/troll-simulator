@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" style="background:#050507">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050507">
+<title>Play · The Troll Simulator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<main class="phone" id="phone">
+  <div class="cover" id="cover"></div>
+  <header class="top z">
+    <div class="host"><div class="av" id="hostAv"></div><div class="t"><b id="hostName"></b>💎 <span id="score">0</span></div><button class="fol" id="folBtn">Follow</button></div>
+    <div class="rt"><span class="chip">👁 <span id="viewers">0</span></span><button class="x" id="endBtn" aria-label="End LIVE">✕</button></div>
+  </header>
+  <div class="row2 z">
+    <span class="live"><i></i><i></i><i></i>LIVE</span>
+    <span class="chip" id="lvl">Level 1</span>
+    <span class="chip" id="wait">⏳ 0 waiting</span>
+    <div class="tb">
+      <button class="chip" id="layoutBtn">▦</button>
+      <button class="chip" id="pauseBtn" aria-pressed="false" aria-label="Pause LIVE">❚❚</button>
+      <button class="chip" id="helpBtn" aria-label="How to play">❓</button>
+      <button class="chip" id="cfgBtn" aria-label="Settings">⚙️</button>
+    </div>
+  </div>
+  <div class="hp z"><span aria-hidden="true">🛡️</span><div class="bar" id="hpbar" role="progressbar" aria-label="Community health" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><i id="hp"></i></div><span id="hpv" aria-hidden="true">100%</span></div>
+  <div class="banner" id="banner" role="status"></div>
+  <section class="boxes z grid" id="boxes" aria-label="Guest boxes"></section>
+  <section class="feed z" id="feed" role="log" aria-live="polite" aria-relevant="additions" aria-label="Live chat"></section>
+  <div class="bottom z">
+    <input id="chatIn" type="text" placeholder="Add comment..." maxlength="80" aria-label="Add comment">
+    <button class="ib" id="moreBtn" aria-label="More: profile, account, share">⋯</button>
+    <button class="ib heartb" id="likeBtn" aria-label="Send likes">❤️</button>
+  </div>
+  <footer class="foot z">
+    <nav class="ftl" aria-label="Site"><a href="index.html">🏠 Home</a><button id="ftScores">🏆 Scores</button><button id="ftCfg">⚙️ Settings</button><a href="instructions.html">📖 Help</a><a href="admin.html">🛠️ Admin</a></nav>
+  </footer>
+
+  <div class="over" id="start"><div class="card">
+    <div class="big" style="font-size:38px">The Troll Simulator</div>
+    <p style="margin-top:10px">You’re about to go LIVE. Welcome your guests, spot the trolls and keep your LIVE clean.</p>
+    <label for="titleIn">LIVE title</label><input type="text" id="titleIn" maxlength="40" value="Cleaning up my comments">
+    <label>Difficulty</label><div class="seg" id="diffSeg2"></div><p id="startBest" style="margin:8px 0 0"></p>
+    <button class="btn pri" id="playBtn">Go LIVE</button>
+    <div class="seg" style="margin-top:10px"><button id="cfgBtn2">⚙️ Settings</button><button id="scBtn2">🏆 Scores</button><a class="seglink" href="instructions.html">📖 Help</a></div>
+    <div class="how" id="how"></div>
+  </div></div>
+  <div id="cd" role="status" aria-live="polite" hidden></div>
+  <div class="over" id="end" hidden><div class="card">
+    <p id="endMsg" style="margin:0">LIVE ended</p>
+    <div class="big" id="endScore">0</div><p style="margin:4px 0 0">diamonds earned</p>
+    <div class="stats" id="stats"></div>
+    <button class="btn pri" id="shareScore">Share to TikTok</button>
+    <button class="btn" id="saveCard">Save score card</button>
+    <button class="btn" id="scBtn3">🏆 High scores</button>
+    <button class="btn" id="cfgBtn3">⚙️ Difficulty and settings</button>
+    <button class="btn" id="again">Go LIVE again</button>
+  </div></div>
+
+  <div class="sheet" id="userSheet" hidden><div class="card ucard">
+    <div class="av" id="uAv"></div><h2 id="uName"></h2><p id="uSub"></p><p id="uBio" hidden></p><div class="dos" id="uDos"></div>
+    <div class="acts" id="uActs"></div>
+    <button class="btn" id="uClose">Close</button>
+  </div></div>
+  <div class="sheet" id="profSheet" hidden><div class="card">
+    <h2>Edit profile</h2><p>Your host photo and name update on the LIVE right away.</p>
+    <label for="nameIn">Name</label><input type="text" id="nameIn" maxlength="24">
+    <label for="handleIn">Username</label><input type="text" id="handleIn" maxlength="20">
+    <label>Profile photo</label><div class="sw" id="emojiSw"></div>
+    <label>Photo background</label><div class="sw" id="bgSw"></div>
+    <label for="photoIn">Or upload your own photo</label><input type="file" id="photoIn" accept="image/*">
+    <button class="btn pri" id="profDone">Save</button>
+  </div></div>
+  <div class="sheet" id="acctSheet" hidden><div class="card">
+    <div id="acctIn" class="ucard" hidden>
+      <div class="av" id="acctAv"></div><h2 id="acctNm"></h2><p>Signed in with TikTok.</p>
+      <button class="btn" id="outBtn">Sign out</button>
+    </div>
+    <div id="acctOut">
+      <h2>Log in to save your score</h2><p id="acctMsg">Create an account to keep your high score across devices.</p>
+      <button class="btn g" id="gBtn">Continue with Google</button>
+      <button class="btn t" id="ttBtn">Continue with TikTok</button>
+    </div>
+    <button class="btn" id="acctClose">Close</button>
+  </div></div>
+  <div class="sheet" id="cfgSheet" hidden><div class="card">
+    <h2>Settings</h2><p>Saved on this device.</p>
+    <label>Difficulty</label><div class="seg" id="diffSeg"></div><p id="diffNote" hidden>Difficulty can be changed between LIVEs.</p>
+    <label class="chk"><input type="checkbox" id="cfgUnmute"> Muted guests can turn their mic back on</label>
+    <label class="chk"><input type="checkbox" id="cfgRelaxed"> Relaxed mode: slower joins, slower health loss, and good guests stay</label>
+    <h3>Sound</h3>
+    <label class="chk"><input type="checkbox" id="cfgSound"> Play guest soundbytes when they talk</label>
+    <label class="chk"><input type="checkbox" id="cfgSfx"> Game sound effects</label>
+    <label for="cfgVol">Soundbyte volume</label><input type="range" id="cfgVol" min="0" max="1" step="0.05">
+    <p>Soundbytes, usernames and clip limits are managed on the <a href="admin.html">Admin page</a>.</p>
+    <p id="sbStat"></p>
+    <button class="btn pri" id="cfgDone">Done</button>
+  </div></div>
+  <div class="sheet" id="scoreSheet" hidden><div class="card">
+    <h2>High scores</h2><p>Saved on this device, per difficulty.</p>
+    <div class="seg" id="scSeg"></div>
+    <ol class="sc" id="scList"></ol>
+    <button class="btn" id="scClr">Clear high scores</button>
+    <button class="btn pri" id="scDone">Done</button>
+  </div></div>
+  <div class="sheet" id="moreSheet" hidden><div class="card">
+    <h2>More</h2>
+    <button class="btn" id="profBtn">✏️ Edit profile</button>
+    <button class="btn" id="acctBtn">👤 Account</button>
+    <button class="btn" id="shareBtn">↗️ Share</button>
+    <button class="btn pri" id="moreDone">Close</button>
+  </div></div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

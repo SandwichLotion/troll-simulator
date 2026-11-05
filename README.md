@@ -21,13 +21,13 @@ community health up.
   It changes join pace, how long sleeper trolls stay nice, how many guests are trolls and how fast
   community health drains. Settings are saved on this device.
 - **High scores:** saved in your browser's local storage, a separate top 30 per difficulty. Open the
-  🏆 list from the start screen, end screen or footer. **Export save file** writes a
+  🏆 list from the start screen, end screen or footer. On the Admin page, **Export save file** writes a
   `troll-simulator-save.json` to your computer (scores, profile, settings, username list) and
   **Import save file** restores it. Clearing site data erases local scores, so export a backup.
-- **Usernames:** guests take names from your lists. Add a TikTok `@username` in the footer (or a
+- **Usernames:** guests take names from your lists. Add a TikTok `@username` (with an optional bio) on the Admin page (or a
   profile link) and it joins the guest list as a friendly guest, with a link to the real profile.
-  Upload a `usernames.csv` (`username,type` where type is `good`, `bad` or `any`) in the 👥 Usernames
-  sheet and choose how often guests use custom names.
+  Upload a `usernames.csv` (`username,type,bio` where type is `good`, `bad` or `any`, and bio is
+  optional) on the Admin page and choose how often guests use custom names.
 - Toggles for muted guests turning their mic back on, game sound effects, soundbytes and volume.
 
 ## Soundbytes (CSV + grid)
@@ -48,15 +48,16 @@ hard,#@$%&!,bleep-2.mp3
   **MP3 folder or URL** setting (default `sounds/`). Leave blank for silent lines.
 - Optional 4th column `type` (`nice`, `eager`, `curse`, `chat`) adds a **new** line to the game's
   pool for that difficulty. Without it, new lines are treated as `nice`.
-- `soundbytes.csv` in the site root loads automatically. A CSV loaded in Settings is remembered on
-  that device, but uploaded mp3 files must be re-added each visit.
+- `soundbytes.csv` in the site root loads automatically. A CSV loaded on the Admin page is remembered on
+  that device, and so are uploaded mp3 files (kept in the browser's IndexedDB). They are not part of the
+  save file, so keep your originals.
 
-**Grid:** once a CSV is loaded, the 🎚️ Soundbyte grid lists every line with a drop box for its mp3.
+**Grid:** on the Admin page, once a CSV is loaded, the Soundbyte grid lists every line with a drop box for its mp3.
 Drag mp3 files anywhere on the grid (matched by file name), or drop one on a specific line's box to
 link it to that line, or tap a box to choose a file. ▶ previews a clip and ✕ unlinks it. Clips over
 the size or length limit are rejected with a message. "Download this sheet as CSV" saves your links.
 
-**Clip limits** come from a text file, `config.txt` in the site root (or load one in Settings):
+**Clip limits** come from a text file, `config.txt` in the site root (or load one on the Admin page):
 
 ```
 max_clip_kb=1024
@@ -75,10 +76,16 @@ max_clip_seconds=10
 - TikTok-LIVE style UI with host pill, viewer count, ambient chat, gift banners and floating hearts
 - Editable profile: name, username, emoji photo, photo background or your own upload
 - High score saved on the device, share sheet and a downloadable 1080x1920 score card for TikTok
-- No build step and no dependencies: the game is one `index.html`
+- No build step and no dependencies: plain HTML, CSS and JavaScript
 
 ## Repo layout
-- `public/`: the game itself (this folder is what gets published): `index.html`, `config.txt`, `soundbytes.csv`, `usernames.csv`, `sounds/`
+- `public/`: the website (this folder is what gets published), always in a dark theme:
+  - `index.html`: home page with Play, Instructions and Admin
+  - `play.html`: the game
+  - `instructions.html`: how to play
+  - `admin.html`: guest list and TikTok bios, soundbytes, clip limits, backup
+  - `app.js`, `game.css`, `site.css`: shared code and styles
+  - `config.txt`, `soundbytes.csv`, `usernames.csv`, `sounds/`: default data
 - `lib/auth.js`, `wrangler.toml`, `test/`: the optional sign-in server (see below)
 - `.github/workflows/pages.yml`: publishes `public/` to GitHub Pages on every push to `main`
 
@@ -106,7 +113,7 @@ signed session token. TikTok's own access and refresh tokens are never sent to t
 1. Publish the game on GitHub Pages first (above) so you have its exact address.
 2. In the [TikTok developer portal](https://developers.tiktok.com), create an app and add **Login Kit**.
    Request the `user.info.basic` scope and register the game's exact address
-   (`https://<you>.github.io/troll-simulator/`, with the trailing slash) as a **Web redirect URI**.
+   (`https://<you>.github.io/troll-simulator/play.html`) as a **Web redirect URI**. It must match exactly.
    Extra scopes need TikTok's approval, and the app must pass TikTok's app review before people
    outside your test accounts can sign in.
 3. Edit `wrangler.toml`: set `ALLOWED_ORIGIN`, `REDIRECT_URI` and `TIKTOK_CLIENT_KEY`. Then deploy:
@@ -117,7 +124,7 @@ signed session token. TikTok's own access and refresh tokens are never sent to t
    npx wrangler secret put SESSION_SECRET      # any long random string
    npx wrangler deploy                         # prints https://troll-simulator-auth.<you>.workers.dev
    ```
-4. In `public/index.html`, set `AUTH.apiBase` to that Worker address, then commit and push. The client key
+4. In `public/app.js`, set `AUTH.apiBase` to that Worker address, then commit and push. The client key
    and redirect address are read from the Worker, so they are not stored in the page.
 5. Check it: `npm test` runs the server tests, and `<worker address>/health` should return `{"ok":true}`.
 

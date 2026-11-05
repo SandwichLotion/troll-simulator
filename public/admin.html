@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" style="background:#050507">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050507">
+<title>Admin · The Troll Simulator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="game.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="sitehead"><div class="wrap"><a class="brand" href="index.html">🧌 The Troll Simulator</a>
+<nav class="sitenav" aria-label="Main"><a href="play.html">Play</a><a href="instructions.html">Instructions</a><a href="admin.html" aria-current="page">Admin</a></nav></div></header>
+<main id="main" class="wrap">
+<h1><span class="grad">Admin</span></h1>
+<p class="lead">Manage the guest list, TikTok bios, soundbytes and limits. Changes apply to the game on this device right away.</p>
+<div class="note"><p>Everything here is saved in this browser only, and this page has no password. Use <b>Export save file</b> at the bottom to back it up or move it to another device.</p></div>
+<ul class="toc" aria-label="On this page">
+<li><a href="#guests">Guest list</a></li><li><a href="#sounds">Soundbytes</a></li><li><a href="#limits">Limits</a></li><li><a href="#data">Your data</a></li>
+</ul>
+
+<section class="panel card" id="guests" aria-labelledby="gh">
+  <h2 id="gh">Guest list</h2>
+  <p>Guests take their names from this list. TikTok names you add always play friendly guests, and their bio shows on the guest’s profile card.</p>
+  <h3>Add a TikTok user</h3>
+  <form class="ftform" id="ftForm">
+    <div><label for="ftName">TikTok username or profile link</label><input id="ftName" type="text" placeholder="@username" maxlength="80" autocomplete="off"></div>
+    <div><label for="ftBio">Bio (optional, up to 150 characters)</label><input id="ftBio" type="text" placeholder="What their TikTok bio says" maxlength="150" autocomplete="off"></div>
+    <button class="btn pri" type="submit">Add to guest list</button>
+  </form>
+  <h3>TikTok names you added <span id="nmCount"></span></h3>
+  <ul class="nl" id="nmList"></ul>
+  <h3>Custom username sheet</h3>
+  <p>Upload a CSV with the columns <code>username,type,bio</code>. Type is <code>good</code>, <code>bad</code> or <code>any</code> (the default). Bio is optional.</p>
+  <label for="nmMix">How often guests use custom names: <span id="nmMixV"></span></label><input type="range" id="nmMix" min="0" max="1" step="0.1">
+  <button class="btn" id="nmUp">Upload usernames.csv</button><input type="file" id="nmIn" accept=".csv,text/csv" hidden>
+  <button class="btn" id="nmTpl">Download CSV template</button>
+  <button class="btn" id="nmClr">Clear username sheet</button>
+  <p id="nmStat" role="status"></p>
+</section>
+
+<section class="panel card" id="sounds" aria-labelledby="sh">
+  <h2 id="sh">Soundbytes</h2>
+  <p>Upload a CSV with the columns <code>difficulty,Text They Say,mp3file</code>. Difficulty is <code>easy</code>, <code>medium</code>, <code>hard</code> or <code>all</code>. The mp3 plays when a guest says that exact text. Repeat a line with different mp3 files to have one picked at random. Lines that aren’t built into the game are added as new things guests can say.</p>
+  <button class="btn" id="csvUp">Upload soundbytes.csv</button><input type="file" id="csvIn" accept=".csv,text/csv" hidden>
+  <button class="btn" id="csvTpl">Download CSV template</button>
+  <button class="btn" id="csvClr">Clear soundbytes and uploaded mp3 files</button>
+  <button class="btn" id="mp3Up">Upload mp3 files</button><input type="file" id="mp3In" accept="audio/*,.mp3" multiple hidden>
+  <label for="cfgBase">MP3 folder or URL (used for files that aren’t uploaded)</label><input type="text" id="cfgBase">
+  <p id="sbStat" role="status"></p>
+  <h3>Soundbyte grid</h3>
+  <p id="gridInfo">Load a soundbytes CSV to see its lines here.</p>
+  <div class="gwrap" id="gridDrop">
+    <p class="ghint">Drag and drop mp3 files here. Files are matched to lines by file name. Drop a file on a line’s mp3 box to link it to that line, or select the box to choose one.</p>
+    <div id="grid"></div>
+  </div>
+  <button class="btn" id="gridAdd">Choose mp3 files</button><input type="file" id="gridIn" accept="audio/*,.mp3" multiple hidden>
+  <button class="btn" id="gridCsv">Download this sheet as CSV</button>
+</section>
+
+<section class="panel card" id="limits" aria-labelledby="lh">
+  <h2 id="lh">Clip limits</h2>
+  <p>The largest and longest allowed mp3 clip come from a text file named <code>config.txt</code> (<code>max_clip_kb</code> and <code>max_clip_seconds</code>).</p>
+  <button class="btn" id="limUp">Load config.txt</button><input type="file" id="limIn" accept=".txt,text/plain" hidden>
+  <button class="btn" id="limTpl">Download config.txt template</button>
+  <p id="limStat" role="status"></p>
+</section>
+
+<section class="panel card" id="data" aria-labelledby="dh">
+  <h2 id="dh">Your data</h2>
+  <p>Back up your scores, profile, settings, guest list and soundbyte sheet to a file, or restore them from one. Uploaded mp3 files are not included, so keep your originals.</p>
+  <button class="btn" id="saveExp">Export save file</button>
+  <button class="btn" id="saveImp">Import save file</button><input type="file" id="saveIn" accept="application/json,.json" hidden>
+  <button class="btn" id="scClr">Clear high scores</button>
+</section>
+</main>
+<footer class="sitefoot"><div class="wrap"><nav class="sitenav" aria-label="Footer"><a href="index.html">Home</a><a href="play.html">Play</a><a href="instructions.html">Instructions</a><a href="admin.html">Admin</a></nav>Scores and settings are saved on this device only. Not affiliated with TikTok.</div></footer>
+<script src="app.js"></script>
+</body>
+</html>

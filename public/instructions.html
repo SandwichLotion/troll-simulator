@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" style="background:#050507">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050507">
+<title>Instructions · The Troll Simulator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="sitehead"><div class="wrap"><a class="brand" href="index.html">🧌 The Troll Simulator</a>
+<nav class="sitenav" aria-label="Main"><a href="play.html">Play</a><a href="instructions.html" aria-current="page">Instructions</a><a href="admin.html">Admin</a></nav></div></header>
+<main id="main" class="wrap">
+<h1><span class="grad">How to play</span></h1>
+<p class="lead">You are the creator on a LIVE. Guests join, some are great, and some are trolls waiting for the right moment. Keep the LIVE clean until you’re out of levels, or until TikTok ends it.</p>
+<p><a class="tile main" href="play.html" style="max-width:420px"><span class="ic" aria-hidden="true">🎥</span><span><b>Go play</b></span><span class="go" aria-hidden="true">→</span></a></p>
+
+<h2>The goal</h2>
+<p>Earn as many 💎 diamonds as you can. You earn them by removing trolls and thanking good guests. You lose them, and your community health, when you act on someone who was innocent. If health reaches zero, TikTok ends your LIVE. Your best scores are saved on this device for each difficulty.</p>
+
+<h2>Your guests</h2>
+<ul>
+<li><b>Good guests</b> say friendly things, send you Roses (+2 💎), and leave after a while unless you thank them.</li>
+<li><b>Sleepers</b> are trolls that act nice for a few minutes, then start yelling censored obscenities such as <code>#@$%&amp;!</code>.</li>
+<li><b>Link sharers</b> bring friends. Watch for names tagged “via @someone” and the 🔗 on a box.</li>
+<li><b>Raid groups</b> are trolls who arrive together and wait until every member is seated. Then they all yell at once.</li>
+</ul>
+
+<h2>Your tools</h2>
+<p>Tap a guest’s box to open their profile card. It shows account age, followers, reports, who they joined through, and whether they shared the link, plus their TikTok bio if one was added in Admin. Tap the 🎙️ on a box to mute in one tap.</p>
+<table>
+<caption class="sr" style="position:absolute;left:-9999px">Score changes for each action</caption>
+<thead><tr><th scope="col">Action</th><th scope="col">On a troll</th><th scope="col">On a good guest</th></tr></thead>
+<tbody>
+<tr><th scope="row">🎙️ Mute mic</th><td class="pt pos">+10 (+4 for a repeat)</td><td class="pt neg">−3 and health −2</td></tr>
+<tr><th scope="row">✂️ Remove</th><td class="pt pos">+15, or +25 before they yell</td><td class="pt neg">−15 and health −8</td></tr>
+<tr><th scope="row">🚫 Block</th><td class="pt pos">+20, or +30 before they yell</td><td class="pt neg">−30 and health −8</td></tr>
+<tr><th scope="row">🎁 Thank</th><td class="pt neg">−3</td><td class="pt pos">+4, and they stay longer</td></tr>
+</tbody></table>
+<p>Removing or blocking a raid member <em>before the group fires</em> cancels their invites. That’s a bonus of +30 💎 for each raid you prevent.</p>
+<div class="note"><p><b>Muted guests can come back.</b> After a few seconds a muted guest may turn their mic back on. Trolls who return start yelling again, so remove or block repeat offenders.</p></div>
+
+<h2>Community health</h2>
+<p>The bar under the header is your community health. Every guest who is yelling drains it. It slowly recovers while the LIVE is quiet. At 0%, TikTok ends your LIVE for guideline violations.</p>
+
+<h2>Levels</h2>
+<table>
+<thead><tr><th scope="col">Level</th><th scope="col">Boxes</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><th scope="row">1</th><td>3</td><td>Slow start. Guests trickle in and chat is quiet.</td></tr>
+<tr><th scope="row">2</th><td>6</td><td>Raids begin. Watch who shares the link.</td></tr>
+<tr><th scope="row">3</th><td>6</td><td>Bigger raids and trojan links.</td></tr>
+<tr><th scope="row">4</th><td>9</td><td>Full chaos. Guests join fast.</td></tr>
+</tbody></table>
+<p>Each level lasts about 50 seconds. The chat at the bottom is only background chatter from viewers. It doesn’t affect the game.</p>
+
+<h2>Difficulty and comfort options</h2>
+<ul>
+<li><b>Easy, Medium, Hard</b> change how fast guests join, how long sleepers stay quiet, and how fast health drains. Pick one before you go LIVE. Scores are kept separately for each.</li>
+<li><b>Relaxed mode</b> (in Settings) slows joins and health loss, and keeps good guests from leaving.</li>
+<li><b>Pause</b> (the ❚❚ button) freezes the LIVE. The game also pauses while a window is open.</li>
+<li><b>Layouts</b> (the ▦ button) switch between a grid, large boxes and a list.</li>
+<li>Muted guests turning their mic back on, game sounds and soundbytes can each be switched off in Settings.</li>
+</ul>
+
+<h2>Keyboard</h2>
+<p>Press <kbd>Tab</kbd> to move between guest boxes. Press <kbd>Enter</kbd> or <kbd>Space</kbd> on a box to open the profile, or on its mic button to mute. <kbd>Esc</kbd> closes any window.</p>
+
+<h2>Customize the game</h2>
+<p>The <a href="admin.html">Admin page</a> is where you add your own guests and sounds:</p>
+<ul>
+<li>Add TikTok usernames, with an optional bio, to the guest list. They always appear as friendly guests.</li>
+<li>Upload a username sheet (<code>username,type,bio</code>) for custom good and bad guests.</li>
+<li>Link mp3 soundbytes to the lines guests say, using a CSV (<code>difficulty,Text They Say,mp3file</code>) and a drag-and-drop grid.</li>
+<li>Set clip size limits with a <code>config.txt</code> file.</li>
+<li>Back up or restore your scores and settings.</li>
+</ul>
+
+<h2>Sharing</h2>
+<p>When a LIVE ends you can share your score to TikTok or save a score card image. Open ⋯ → Account to sign in with TikTok when it’s set up.</p>
+</main>
+<footer class="sitefoot"><div class="wrap"><nav class="sitenav" aria-label="Footer"><a href="index.html">Home</a><a href="play.html">Play</a><a href="instructions.html">Instructions</a><a href="admin.html">Admin</a></nav>Scores and settings are saved on this device only. Not affiliated with TikTok.</div></footer>
+</body>
+</html>
